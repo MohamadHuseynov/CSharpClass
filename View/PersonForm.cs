@@ -22,7 +22,7 @@ namespace View
 
         private void dataGridViewPerson_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-
+           
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿
 
 using System.Diagnostics;
+using System.Globalization;
 
 namespace View
 {
@@ -14,6 +15,16 @@ namespace View
         private void btnBack_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void dataGridViewProduct_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void txtTitle_TextChanged(object sender, EventArgs e)
+        {
+          
         }
     }
 }

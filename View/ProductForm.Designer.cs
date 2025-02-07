@@ -34,6 +34,11 @@
             btnEdit = new Button();
             btnAdd = new Button();
             dataGridViewProduct = new DataGridView();
+            CheckBox = new DataGridViewCheckBoxColumn();
+            productID = new DataGridViewTextBoxColumn();
+            productTitle = new DataGridViewTextBoxColumn();
+            productUnitPrice = new DataGridViewTextBoxColumn();
+            productQuantity = new DataGridViewTextBoxColumn();
             lblId = new Label();
             lblTitle = new Label();
             lblUnitPrice = new Label();
@@ -42,11 +47,6 @@
             txtTitle = new TextBox();
             txtUnitPrice = new TextBox();
             txtQuantity = new TextBox();
-            CheckBox = new DataGridViewCheckBoxColumn();
-            productID = new DataGridViewTextBoxColumn();
-            productTitle = new DataGridViewTextBoxColumn();
-            productUnitPrice = new DataGridViewTextBoxColumn();
-            productQuantity = new DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)dataGridViewProduct).BeginInit();
             SuspendLayout();
             // 
@@ -109,6 +109,44 @@
             dataGridViewProduct.RowHeadersWidth = 82;
             dataGridViewProduct.Size = new Size(1382, 288);
             dataGridViewProduct.TabIndex = 10;
+            dataGridViewProduct.CellContentClick += dataGridViewProduct_CellContentClick;
+            // 
+            // CheckBox
+            // 
+            CheckBox.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            CheckBox.HeaderText = "";
+            CheckBox.MinimumWidth = 10;
+            CheckBox.Name = "CheckBox";
+            CheckBox.ReadOnly = true;
+            CheckBox.Width = 50;
+            // 
+            // productID
+            // 
+            productID.HeaderText = "Id";
+            productID.MinimumWidth = 10;
+            productID.Name = "productID";
+            productID.ReadOnly = true;
+            // 
+            // productTitle
+            // 
+            productTitle.HeaderText = "Title";
+            productTitle.MinimumWidth = 10;
+            productTitle.Name = "productTitle";
+            productTitle.ReadOnly = true;
+            // 
+            // productUnitPrice
+            // 
+            productUnitPrice.HeaderText = "UnitPrice";
+            productUnitPrice.MinimumWidth = 10;
+            productUnitPrice.Name = "productUnitPrice";
+            productUnitPrice.ReadOnly = true;
+            // 
+            // productQuantity
+            // 
+            productQuantity.HeaderText = "Quantity";
+            productQuantity.MinimumWidth = 10;
+            productQuantity.Name = "productQuantity";
+            productQuantity.ReadOnly = true;
             // 
             // lblId
             // 
@@ -159,6 +197,7 @@
             txtTitle.Name = "txtTitle";
             txtTitle.Size = new Size(200, 39);
             txtTitle.TabIndex = 17;
+            txtTitle.TextChanged += txtTitle_TextChanged;
             // 
             // txtUnitPrice
             // 
@@ -173,43 +212,6 @@
             txtQuantity.Name = "txtQuantity";
             txtQuantity.Size = new Size(200, 39);
             txtQuantity.TabIndex = 19;
-            // 
-            // CheckBox
-            // 
-            CheckBox.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            CheckBox.HeaderText = "";
-            CheckBox.MinimumWidth = 10;
-            CheckBox.Name = "CheckBox";
-            CheckBox.ReadOnly = true;
-            CheckBox.Width = 50;
-            // 
-            // productID
-            // 
-            productID.HeaderText = "Id";
-            productID.MinimumWidth = 10;
-            productID.Name = "productID";
-            productID.ReadOnly = true;
-            // 
-            // productTitle
-            // 
-            productTitle.HeaderText = "Title";
-            productTitle.MinimumWidth = 10;
-            productTitle.Name = "productTitle";
-            productTitle.ReadOnly = true;
-            // 
-            // productUnitPrice
-            // 
-            productUnitPrice.HeaderText = "UnitPrice";
-            productUnitPrice.MinimumWidth = 10;
-            productUnitPrice.Name = "productUnitPrice";
-            productUnitPrice.ReadOnly = true;
-            // 
-            // productQuantity
-            // 
-            productQuantity.HeaderText = "Quantity";
-            productQuantity.MinimumWidth = 10;
-            productQuantity.Name = "productQuantity";
-            productQuantity.ReadOnly = true;
             // 
             // frmProduct
             // 
