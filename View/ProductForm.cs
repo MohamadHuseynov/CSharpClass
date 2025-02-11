@@ -1,8 +1,5 @@
 ﻿
 
-using System.Diagnostics;
-using System.Globalization;
-
 namespace View
 {
     public partial class frmProduct : Form
