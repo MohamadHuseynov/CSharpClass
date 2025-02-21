@@ -88,11 +88,15 @@ namespace View
         {
             foreach (DataGridViewRow item in dataGridViewProduct.Rows)
             {
-                if (ifCheckBox == true)
-                {
-                    dataGridViewProduct.Rows.RemoveAt(item.Index);
-                }
+                DataGridViewRow dgvDeleteRoduct = dataGridViewProduct.Rows[selectedRowIndex];
+               
+                dataGridViewProduct.Rows.RemoveAt(selectedRowIndex);
+
             }
+            txtTitle.Clear();
+            txtUnitPrice.Clear();
+            txtQuantity.Clear();
+
 
 
 
