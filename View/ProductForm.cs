@@ -13,7 +13,6 @@ namespace View
             InitializeComponent();
             btnDelete.Enabled = false;
             btnEdit.Enabled = false;
-            txtId.Focus();
 
         }
         Product product = new Product();
@@ -31,7 +30,6 @@ namespace View
         {
             if (CheckBox.Selected = true)
             {
-
                 btnDelete.Enabled = true;
                 btnEdit.Enabled = true;
             }
