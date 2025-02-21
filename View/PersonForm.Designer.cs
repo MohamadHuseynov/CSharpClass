@@ -34,14 +34,11 @@
             btnRefresh = new Button();
             btnBack = new Button();
             dataGridViewPerson = new DataGridView();
-            lblId = new Label();
             lblFirstName = new Label();
             lblLastName = new Label();
-            txtId = new TextBox();
             txtFirstName = new TextBox();
             txtLastName = new TextBox();
             CheckBox = new DataGridViewCheckBoxColumn();
-            personID = new DataGridViewTextBoxColumn();
             personFirstName = new DataGridViewTextBoxColumn();
             personLastName = new DataGridViewTextBoxColumn();
             personFullName = new DataGridViewTextBoxColumn();
@@ -100,7 +97,7 @@
             dataGridViewPerson.AllowDrop = true;
             dataGridViewPerson.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewPerson.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewPerson.Columns.AddRange(new DataGridViewColumn[] { CheckBox, personID, personFirstName, personLastName, personFullName });
+            dataGridViewPerson.Columns.AddRange(new DataGridViewColumn[] { CheckBox, personFirstName, personLastName, personFullName });
             dataGridViewPerson.Location = new Point(25, 319);
             dataGridViewPerson.Name = "dataGridViewPerson";
             dataGridViewPerson.RowHeadersVisible = false;
@@ -109,19 +106,10 @@
             dataGridViewPerson.TabIndex = 5;
             dataGridViewPerson.CellContentClick += dataGridViewPerson_CellContentClick;
             // 
-            // lblId
-            // 
-            lblId.AutoSize = true;
-            lblId.Location = new Point(25, 148);
-            lblId.Name = "lblId";
-            lblId.Size = new Size(42, 32);
-            lblId.TabIndex = 6;
-            lblId.Text = "ID:";
-            // 
             // lblFirstName
             // 
             lblFirstName.AutoSize = true;
-            lblFirstName.Location = new Point(25, 238);
+            lblFirstName.Location = new Point(25, 148);
             lblFirstName.Name = "lblFirstName";
             lblFirstName.Size = new Size(134, 32);
             lblFirstName.TabIndex = 7;
@@ -136,16 +124,9 @@
             lblLastName.TabIndex = 8;
             lblLastName.Text = "Last Name:";
             // 
-            // txtId
-            // 
-            txtId.Location = new Point(168, 141);
-            txtId.Name = "txtId";
-            txtId.Size = new Size(200, 39);
-            txtId.TabIndex = 9;
-            // 
             // txtFirstName
             // 
-            txtFirstName.Location = new Point(168, 238);
+            txtFirstName.Location = new Point(178, 141);
             txtFirstName.Name = "txtFirstName";
             txtFirstName.Size = new Size(200, 39);
             txtFirstName.TabIndex = 10;
@@ -165,13 +146,6 @@
             CheckBox.MinimumWidth = 10;
             CheckBox.Name = "CheckBox";
             CheckBox.Width = 50;
-            // 
-            // personID
-            // 
-            personID.FillWeight = 106.570511F;
-            personID.HeaderText = "Id";
-            personID.MinimumWidth = 10;
-            personID.Name = "personID";
             // 
             // personFirstName
             // 
@@ -201,10 +175,8 @@
             ClientSize = new Size(1537, 663);
             Controls.Add(txtLastName);
             Controls.Add(txtFirstName);
-            Controls.Add(txtId);
             Controls.Add(lblLastName);
             Controls.Add(lblFirstName);
-            Controls.Add(lblId);
             Controls.Add(dataGridViewPerson);
             Controls.Add(btnBack);
             Controls.Add(btnRefresh);
@@ -226,14 +198,11 @@
         private Button btnRefresh;
         private Button btnBack;
         private DataGridView dataGridViewPerson;
-        private Label lblId;
         private Label lblFirstName;
         private Label lblLastName;
-        private TextBox txtId;
         private TextBox txtFirstName;
         private TextBox txtLastName;
         private DataGridViewCheckBoxColumn CheckBox;
-        private DataGridViewTextBoxColumn personID;
         private DataGridViewTextBoxColumn personFirstName;
         private DataGridViewTextBoxColumn personLastName;
         private DataGridViewTextBoxColumn personFullName;

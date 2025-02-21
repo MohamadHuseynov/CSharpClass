@@ -34,19 +34,16 @@
             btnEdit = new Button();
             btnAdd = new Button();
             dataGridViewProduct = new DataGridView();
-            CheckBox = new DataGridViewCheckBoxColumn();
-            productID = new DataGridViewTextBoxColumn();
-            productTitle = new DataGridViewTextBoxColumn();
-            productUnitPrice = new DataGridViewTextBoxColumn();
-            productQuantity = new DataGridViewTextBoxColumn();
-            lblId = new Label();
             lblTitle = new Label();
             lblUnitPrice = new Label();
             lblQuantity = new Label();
-            txtId = new TextBox();
             txtTitle = new TextBox();
             txtUnitPrice = new TextBox();
             txtQuantity = new TextBox();
+            CheckBox = new DataGridViewCheckBoxColumn();
+            productTitle = new DataGridViewTextBoxColumn();
+            productUnitPrice = new DataGridViewTextBoxColumn();
+            productQuantity = new DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)dataGridViewProduct).BeginInit();
             SuspendLayout();
             // 
@@ -77,6 +74,7 @@
             btnDelete.TabIndex = 7;
             btnDelete.Text = "Delete";
             btnDelete.UseVisualStyleBackColor = true;
+            btnDelete.Click += btnDelete_Click;
             // 
             // btnEdit
             // 
@@ -86,6 +84,7 @@
             btnEdit.TabIndex = 6;
             btnEdit.Text = "Edit";
             btnEdit.UseVisualStyleBackColor = true;
+            btnEdit.Click += btnEdit_Click;
             // 
             // btnAdd
             // 
@@ -95,72 +94,26 @@
             btnAdd.TabIndex = 5;
             btnAdd.Text = "Add";
             btnAdd.UseVisualStyleBackColor = true;
+            btnAdd.Click += btnAdd_Click;
             // 
             // dataGridViewProduct
             // 
             dataGridViewProduct.AllowDrop = true;
             dataGridViewProduct.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewProduct.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewProduct.Columns.AddRange(new DataGridViewColumn[] { CheckBox, productID, productTitle, productUnitPrice, productQuantity });
+            dataGridViewProduct.Columns.AddRange(new DataGridViewColumn[] { CheckBox, productTitle, productUnitPrice, productQuantity });
             dataGridViewProduct.Location = new Point(19, 325);
             dataGridViewProduct.Name = "dataGridViewProduct";
-            dataGridViewProduct.ReadOnly = true;
             dataGridViewProduct.RowHeadersVisible = false;
             dataGridViewProduct.RowHeadersWidth = 82;
             dataGridViewProduct.Size = new Size(1382, 288);
             dataGridViewProduct.TabIndex = 10;
             dataGridViewProduct.CellContentClick += dataGridViewProduct_CellContentClick;
             // 
-            // CheckBox
-            // 
-            CheckBox.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            CheckBox.HeaderText = "";
-            CheckBox.MinimumWidth = 10;
-            CheckBox.Name = "CheckBox";
-            CheckBox.ReadOnly = true;
-            CheckBox.Width = 50;
-            // 
-            // productID
-            // 
-            productID.HeaderText = "Id";
-            productID.MinimumWidth = 10;
-            productID.Name = "productID";
-            productID.ReadOnly = true;
-            // 
-            // productTitle
-            // 
-            productTitle.HeaderText = "Title";
-            productTitle.MinimumWidth = 10;
-            productTitle.Name = "productTitle";
-            productTitle.ReadOnly = true;
-            // 
-            // productUnitPrice
-            // 
-            productUnitPrice.HeaderText = "UnitPrice";
-            productUnitPrice.MinimumWidth = 10;
-            productUnitPrice.Name = "productUnitPrice";
-            productUnitPrice.ReadOnly = true;
-            // 
-            // productQuantity
-            // 
-            productQuantity.HeaderText = "Quantity";
-            productQuantity.MinimumWidth = 10;
-            productQuantity.Name = "productQuantity";
-            productQuantity.ReadOnly = true;
-            // 
-            // lblId
-            // 
-            lblId.AutoSize = true;
-            lblId.Location = new Point(35, 127);
-            lblId.Name = "lblId";
-            lblId.Size = new Size(42, 32);
-            lblId.TabIndex = 11;
-            lblId.Text = "ID:";
-            // 
             // lblTitle
             // 
             lblTitle.AutoSize = true;
-            lblTitle.Location = new Point(35, 186);
+            lblTitle.Location = new Point(36, 134);
             lblTitle.Name = "lblTitle";
             lblTitle.Size = new Size(65, 32);
             lblTitle.TabIndex = 12;
@@ -184,19 +137,12 @@
             lblQuantity.TabIndex = 14;
             lblQuantity.Text = "Quantity:";
             // 
-            // txtId
-            // 
-            txtId.Location = new Point(181, 124);
-            txtId.Name = "txtId";
-            txtId.Size = new Size(200, 39);
-            txtId.TabIndex = 16;
-            // 
             // txtTitle
             // 
-            txtTitle.Location = new Point(180, 183);
+            txtTitle.Location = new Point(176, 128);
             txtTitle.Name = "txtTitle";
             txtTitle.Size = new Size(200, 39);
-            txtTitle.TabIndex = 17;
+            txtTitle.TabIndex = 1;
             txtTitle.TextChanged += txtTitle_TextChanged;
             // 
             // txtUnitPrice
@@ -204,14 +150,40 @@
             txtUnitPrice.Location = new Point(847, 124);
             txtUnitPrice.Name = "txtUnitPrice";
             txtUnitPrice.Size = new Size(200, 39);
-            txtUnitPrice.TabIndex = 18;
+            txtUnitPrice.TabIndex = 2;
             // 
             // txtQuantity
             // 
             txtQuantity.Location = new Point(847, 183);
             txtQuantity.Name = "txtQuantity";
             txtQuantity.Size = new Size(200, 39);
-            txtQuantity.TabIndex = 19;
+            txtQuantity.TabIndex = 3;
+            // 
+            // CheckBox
+            // 
+            CheckBox.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            CheckBox.HeaderText = "";
+            CheckBox.MinimumWidth = 10;
+            CheckBox.Name = "CheckBox";
+            CheckBox.Width = 50;
+            // 
+            // productTitle
+            // 
+            productTitle.HeaderText = "Title";
+            productTitle.MinimumWidth = 10;
+            productTitle.Name = "productTitle";
+            // 
+            // productUnitPrice
+            // 
+            productUnitPrice.HeaderText = "UnitPrice";
+            productUnitPrice.MinimumWidth = 10;
+            productUnitPrice.Name = "productUnitPrice";
+            // 
+            // productQuantity
+            // 
+            productQuantity.HeaderText = "Quantity";
+            productQuantity.MinimumWidth = 10;
+            productQuantity.Name = "productQuantity";
             // 
             // frmProduct
             // 
@@ -221,11 +193,9 @@
             Controls.Add(txtQuantity);
             Controls.Add(txtUnitPrice);
             Controls.Add(txtTitle);
-            Controls.Add(txtId);
             Controls.Add(lblQuantity);
             Controls.Add(lblUnitPrice);
             Controls.Add(lblTitle);
-            Controls.Add(lblId);
             Controls.Add(dataGridViewProduct);
             Controls.Add(btnBack);
             Controls.Add(btnRefresh);
@@ -247,16 +217,13 @@
         private Button btnEdit;
         private Button btnAdd;
         private DataGridView dataGridViewProduct;
-        private Label lblId;
         private Label lblTitle;
         private Label lblUnitPrice;
         private Label lblQuantity;
-        private TextBox txtId;
         private TextBox txtTitle;
         private TextBox txtUnitPrice;
         private TextBox txtQuantity;
         private DataGridViewCheckBoxColumn CheckBox;
-        private DataGridViewTextBoxColumn productID;
         private DataGridViewTextBoxColumn productTitle;
         private DataGridViewTextBoxColumn productUnitPrice;
         private DataGridViewTextBoxColumn productQuantity;
