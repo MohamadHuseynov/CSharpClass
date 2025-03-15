@@ -11,7 +11,6 @@ namespace View
             btnDelete.Enabled = false;
             btnEdit.Enabled = false;
 
-
         }
         Product product = new Product();
 
@@ -86,7 +85,7 @@ namespace View
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            foreach (DataGridViewRow item in dataGridViewProduct.Rows)
+            if (selectedRowIndex != -1 && selectedRowIndex < dataGridViewProduct.Rows.Count)
             {
                 DataGridViewRow dgvDeleteRoduct = dataGridViewProduct.Rows[selectedRowIndex];
                
