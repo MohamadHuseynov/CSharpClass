@@ -34,16 +34,16 @@
             btnEdit = new Button();
             btnAdd = new Button();
             dataGridViewProduct = new DataGridView();
+            CheckBox = new DataGridViewCheckBoxColumn();
+            productTitle = new DataGridViewTextBoxColumn();
+            productUnitPrice = new DataGridViewTextBoxColumn();
+            productQuantity = new DataGridViewTextBoxColumn();
             lblTitle = new Label();
             lblUnitPrice = new Label();
             lblQuantity = new Label();
             txtTitle = new TextBox();
             txtUnitPrice = new TextBox();
             txtQuantity = new TextBox();
-            CheckBox = new DataGridViewCheckBoxColumn();
-            productTitle = new DataGridViewTextBoxColumn();
-            productUnitPrice = new DataGridViewTextBoxColumn();
-            productQuantity = new DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)dataGridViewProduct).BeginInit();
             SuspendLayout();
             // 
@@ -99,6 +99,7 @@
             // dataGridViewProduct
             // 
             dataGridViewProduct.AllowDrop = true;
+            dataGridViewProduct.AllowUserToAddRows = false;
             dataGridViewProduct.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewProduct.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewProduct.Columns.AddRange(new DataGridViewColumn[] { CheckBox, productTitle, productUnitPrice, productQuantity });
@@ -109,6 +110,32 @@
             dataGridViewProduct.Size = new Size(1382, 288);
             dataGridViewProduct.TabIndex = 10;
             dataGridViewProduct.CellContentClick += dataGridViewProduct_CellContentClick;
+            // 
+            // CheckBox
+            // 
+            CheckBox.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            CheckBox.HeaderText = "";
+            CheckBox.MinimumWidth = 10;
+            CheckBox.Name = "CheckBox";
+            CheckBox.Width = 50;
+            // 
+            // productTitle
+            // 
+            productTitle.HeaderText = "Title";
+            productTitle.MinimumWidth = 10;
+            productTitle.Name = "productTitle";
+            // 
+            // productUnitPrice
+            // 
+            productUnitPrice.HeaderText = "UnitPrice";
+            productUnitPrice.MinimumWidth = 10;
+            productUnitPrice.Name = "productUnitPrice";
+            // 
+            // productQuantity
+            // 
+            productQuantity.HeaderText = "Quantity";
+            productQuantity.MinimumWidth = 10;
+            productQuantity.Name = "productQuantity";
             // 
             // lblTitle
             // 
@@ -159,32 +186,6 @@
             txtQuantity.Size = new Size(200, 39);
             txtQuantity.TabIndex = 3;
             // 
-            // CheckBox
-            // 
-            CheckBox.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            CheckBox.HeaderText = "";
-            CheckBox.MinimumWidth = 10;
-            CheckBox.Name = "CheckBox";
-            CheckBox.Width = 50;
-            // 
-            // productTitle
-            // 
-            productTitle.HeaderText = "Title";
-            productTitle.MinimumWidth = 10;
-            productTitle.Name = "productTitle";
-            // 
-            // productUnitPrice
-            // 
-            productUnitPrice.HeaderText = "UnitPrice";
-            productUnitPrice.MinimumWidth = 10;
-            productUnitPrice.Name = "productUnitPrice";
-            // 
-            // productQuantity
-            // 
-            productQuantity.HeaderText = "Quantity";
-            productQuantity.MinimumWidth = 10;
-            productQuantity.Name = "productQuantity";
-            // 
             // frmProduct
             // 
             AutoScaleDimensions = new SizeF(13F, 32F);
@@ -204,6 +205,7 @@
             Controls.Add(btnAdd);
             Name = "frmProduct";
             Text = "ProductForm";
+            Load += frmProduct_Load;
             ((System.ComponentModel.ISupportInitialize)dataGridViewProduct).EndInit();
             ResumeLayout(false);
             PerformLayout();

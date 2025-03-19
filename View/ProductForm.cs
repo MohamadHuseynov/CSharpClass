@@ -88,7 +88,7 @@ namespace View
             if (selectedRowIndex != -1 && selectedRowIndex < dataGridViewProduct.Rows.Count)
             {
                 DataGridViewRow dgvDeleteRoduct = dataGridViewProduct.Rows[selectedRowIndex];
-               
+
                 dataGridViewProduct.Rows.RemoveAt(selectedRowIndex);
 
             }
@@ -98,6 +98,11 @@ namespace View
 
 
 
+
+        }
+
+        private void frmProduct_Load(object sender, EventArgs e)
+        {
 
         }
     }

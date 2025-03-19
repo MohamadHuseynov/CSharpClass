@@ -22,7 +22,12 @@ namespace View
 
         private void dataGridViewPerson_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-           
+
+        }
+
+        private void frmPerson_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }
