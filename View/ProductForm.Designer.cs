@@ -178,6 +178,7 @@
             txtUnitPrice.Name = "txtUnitPrice";
             txtUnitPrice.Size = new Size(200, 39);
             txtUnitPrice.TabIndex = 2;
+            txtUnitPrice.TextChanged += txtUnitPrice_TextChanged;
             // 
             // txtQuantity
             // 
