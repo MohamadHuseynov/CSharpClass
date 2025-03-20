@@ -106,6 +106,7 @@
             dataGridViewProduct.Columns.AddRange(new DataGridViewColumn[] { CheckBox, productTitle, productUnitPrice, productQuantity });
             dataGridViewProduct.Location = new Point(19, 325);
             dataGridViewProduct.Name = "dataGridViewProduct";
+            dataGridViewProduct.ReadOnly = true;
             dataGridViewProduct.RowHeadersVisible = false;
             dataGridViewProduct.RowHeadersWidth = 82;
             dataGridViewProduct.Size = new Size(1382, 288);
@@ -118,6 +119,7 @@
             CheckBox.HeaderText = "";
             CheckBox.MinimumWidth = 10;
             CheckBox.Name = "CheckBox";
+            CheckBox.ReadOnly = true;
             CheckBox.Width = 50;
             // 
             // productTitle
@@ -125,18 +127,21 @@
             productTitle.HeaderText = "Title";
             productTitle.MinimumWidth = 10;
             productTitle.Name = "productTitle";
+            productTitle.ReadOnly = true;
             // 
             // productUnitPrice
             // 
             productUnitPrice.HeaderText = "UnitPrice";
             productUnitPrice.MinimumWidth = 10;
             productUnitPrice.Name = "productUnitPrice";
+            productUnitPrice.ReadOnly = true;
             // 
             // productQuantity
             // 
             productQuantity.HeaderText = "Quantity";
             productQuantity.MinimumWidth = 10;
             productQuantity.Name = "productQuantity";
+            productQuantity.ReadOnly = true;
             // 
             // lblTitle
             // 
