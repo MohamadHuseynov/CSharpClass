@@ -97,7 +97,7 @@ namespace View
             {
                 // کد اضافه کردن ردیف به دیتاگرید ویو
                 // مثلاً:
-                dataGridViewProduct.Rows.Add(product.UnitPrice, product.Quantity);
+                dataGridViewProduct.Rows.Add(ifCheckBox, product.Title, product.UnitPrice, product.Quantity);
             }
 
 
