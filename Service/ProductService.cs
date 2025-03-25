@@ -1,42 +1,94 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Model;
 using Model.DomainModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-
 
 namespace Service
 {
     public class ProductService
     {
-        public void AddProduct(Product product)
-        {
-            using (var context = new FinalProjectDbContext())
-            {
-                context.Product.Add(product);
-                context.SaveChanges();
+        private readonly FinalProjectDbContext _context;
 
+        // سازنده برای Dependency Injection
+        public ProductService(FinalProjectDbContext context)
+        {
+            _context = context;
+        }
+
+        // افزودن محصول
+        public bool AddProduct(Product product)
+        {
+            try
+            {
+                _context.Product.Add(product);
+                _context.SaveChanges();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in AddProduct: {ex.Message}");
+                return false;
             }
         }
 
-        //public void TestDataBaseConnect()
-        //{
-        //    using (var context = new FinalProjectDbContext())
-        //    {
-        //        if (context.Database.Exists())
-        //        {
-        //            Console.WriteLine("Database connection successful");
-        //        }
-        //        else
-        //        {
-        //            Console.WriteLine("Database connection failed");
-        //        }
-        //    }
-        //}
+        // دریافت همه محصولات
+        public List<Product> GetAllProducts()
+        {
+            return _context.Product.ToList();
+        }
+
+        // دریافت یک محصول بر اساس ID
+        public Product GetProductById(int id)
+        {
+            return _context.Product.FirstOrDefault(p => p.Id == id);
+        }
+
+        // ویرایش محصول
+        public bool UpdateProduct(Product product)
+        {
+            try
+            {
+                var existingProduct = _context.Product.Find(product.Id);
+                if (existingProduct != null)
+                {
+                    existingProduct.Title = product.Title;
+                    existingProduct.UnitPrice = product.UnitPrice;
+                    existingProduct.Quantity = product.Quantity;
+
+                    _context.SaveChanges();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in UpdateProduct: {ex.Message}");
+                return false;
+            }
+        }
+
+        // حذف محصول بر اساس ID
+        public bool DeleteProduct(int id)
+        {
+            try
+            {
+                var product = _context.Product.Find(id);
+                if (product != null)
+                {
+                    _context.Product.Remove(product);
+                    _context.SaveChanges();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in DeleteProduct: {ex.Message}");
+                return false;
+            }
+        }
     }
 }
+

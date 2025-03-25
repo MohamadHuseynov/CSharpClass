@@ -175,7 +175,7 @@ namespace View
                 {
                     db.Product.Add(newProduct); // ذخیره در دیتابیس
                     db.SaveChanges(); // ذخیره تغییرات
-                    
+                    LoadData(); // رفرش لیست بعد از اضافه شدن 
                 }
 
                 txtTitle.Clear();
@@ -220,8 +220,10 @@ namespace View
                     product.Quantity = Convert.ToInt32(txtQuantity.Text);
 
                     db.SaveChanges();
-                    
+                    LoadData();
+
                 }
+                
             }
         }
 
@@ -307,9 +309,9 @@ namespace View
                 {
                     db.Product.RemoveRange(productsToDelete);
                     db.SaveChanges();
-                    
+                    LoadData(); 
                 }
-                MessageBox.Show("Please click refresh to see the latest changes.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+               
             }
         }
 
