@@ -13,7 +13,7 @@ namespace View
             btnEdit.Enabled = false;
 
         }
-        Product product = new Product();
+        
 
         private int selectedRowIndex = -1;
         public bool ifCheckBox = false;
@@ -84,6 +84,7 @@ namespace View
                 checkBoxCell.Value = !(checkBoxCell.Value != null && (bool)checkBoxCell.Value);
                 dataGridViewProduct.EndEdit();
                 UpdateButtonStates();
+                UpdateTextBoxes();
             }
         }
 
@@ -308,6 +309,7 @@ namespace View
                     db.SaveChanges();
                     
                 }
+                MessageBox.Show("Please click refresh to see the latest changes.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -368,6 +370,38 @@ namespace View
                 btnDelete.Enabled = false; // هیچ دکمه‌ای فعال نیست
             }
         }
+        private void UpdateTextBoxes()
+        {
+            int selectedCount = 0;
+            DataGridViewRow selectedRow = null;
+
+            foreach (DataGridViewRow row in dataGridViewProduct.Rows)
+            {
+                DataGridViewCheckBoxCell checkBox = row.Cells[0] as DataGridViewCheckBoxCell;
+                if (checkBox != null && checkBox.Value != null && (bool)checkBox.Value)
+                {
+                    selectedCount++;
+                    if (selectedCount == 1)
+                    {
+                        selectedRow = row; // ذخیره اولین ردیف انتخاب‌شده
+                    }
+                }
+            }
+
+            if (selectedCount == 1)
+            {
+                txtTitle.Text = selectedRow.Cells[1].Value?.ToString() ?? "";
+                txtUnitPrice.Text = selectedRow.Cells[2].Value?.ToString() ?? "";
+                txtQuantity.Text = selectedRow.Cells[3].Value?.ToString() ?? "";
+            }
+            else
+            {
+                txtTitle.Clear();
+                txtUnitPrice.Clear();
+                txtQuantity.Clear();
+            }
+        }
+
 
         private void txtUnitPrice_TextChanged(object sender, EventArgs e)
         {
