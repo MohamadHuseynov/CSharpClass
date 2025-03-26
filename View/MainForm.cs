@@ -1,3 +1,6 @@
+using Model;
+using Service;
+
 namespace View
 {
     public partial class frmMain : Form
@@ -9,8 +12,9 @@ namespace View
 
         private void button2_Click(object sender, EventArgs e)
         {
-            frmProduct frmProduct = new frmProduct();
-            frmProduct.ShowDialog();
+            ProductService productService = new ProductService(new FinalProjectDbContext());
+            frmProduct productForm = new frmProduct(productService);
+            productForm.Show();
         }
 
         private void btnPerson_Click(object sender, EventArgs e)

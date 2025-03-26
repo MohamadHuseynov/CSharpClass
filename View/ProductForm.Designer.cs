@@ -176,7 +176,7 @@
             txtTitle.Name = "txtTitle";
             txtTitle.Size = new Size(200, 39);
             txtTitle.TabIndex = 1;
-            txtTitle.TextChanged += txtTitle_TextChanged;
+
             // 
             // txtUnitPrice
             // 
@@ -184,7 +184,7 @@
             txtUnitPrice.Name = "txtUnitPrice";
             txtUnitPrice.Size = new Size(200, 39);
             txtUnitPrice.TabIndex = 2;
-            txtUnitPrice.TextChanged += txtUnitPrice_TextChanged;
+
             // 
             // txtQuantity
             // 
