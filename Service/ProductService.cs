@@ -1,9 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Model;
+﻿using Model;
 using Model.DomainModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Service
 {

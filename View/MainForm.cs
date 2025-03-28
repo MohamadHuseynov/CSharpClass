@@ -19,9 +19,10 @@ namespace View
 
         private void btnPerson_Click(object sender, EventArgs e)
         {
-            frmPerson personForm = new frmPerson();
-            personForm.ShowDialog();
-            
+            PersonService personService = new PersonService(new FinalProjectDbContext());
+            frmPerson personForm = new frmPerson(personService);
+            personForm.Show();
+
         }
 
         private void frmMain_Load(object sender, EventArgs e)

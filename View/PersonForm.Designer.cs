@@ -50,7 +50,7 @@
             btnAdd.Location = new Point(25, 29);
             btnAdd.Name = "btnAdd";
             btnAdd.Size = new Size(245, 66);
-            btnAdd.TabIndex = 0;
+            btnAdd.TabIndex = 1;
             btnAdd.Text = "Add";
             btnAdd.UseVisualStyleBackColor = true;
             btnAdd.Click += btnAdd_Click;
@@ -60,7 +60,7 @@
             btnEdit.Location = new Point(303, 29);
             btnEdit.Name = "btnEdit";
             btnEdit.Size = new Size(245, 66);
-            btnEdit.TabIndex = 1;
+            btnEdit.TabIndex = 2;
             btnEdit.Text = "Edit";
             btnEdit.UseVisualStyleBackColor = true;
             btnEdit.Click += btnEdit_Click;
@@ -70,7 +70,7 @@
             btnDelete.Location = new Point(581, 29);
             btnDelete.Name = "btnDelete";
             btnDelete.Size = new Size(245, 66);
-            btnDelete.TabIndex = 2;
+            btnDelete.TabIndex = 3;
             btnDelete.Text = "Delete";
             btnDelete.UseVisualStyleBackColor = true;
             // 
@@ -79,7 +79,7 @@
             btnRefresh.Location = new Point(853, 29);
             btnRefresh.Name = "btnRefresh";
             btnRefresh.Size = new Size(245, 66);
-            btnRefresh.TabIndex = 3;
+            btnRefresh.TabIndex = 4;
             btnRefresh.Text = "Refresh";
             btnRefresh.UseVisualStyleBackColor = true;
             // 
@@ -88,7 +88,7 @@
             btnBack.Location = new Point(1162, 29);
             btnBack.Name = "btnBack";
             btnBack.Size = new Size(245, 66);
-            btnBack.TabIndex = 4;
+            btnBack.TabIndex = 5;
             btnBack.Text = "Back";
             btnBack.UseVisualStyleBackColor = true;
             btnBack.Click += btnBack_Click;
@@ -96,6 +96,7 @@
             // dataGridViewPerson
             // 
             dataGridViewPerson.AllowDrop = true;
+            dataGridViewPerson.AllowUserToAddRows = false;
             dataGridViewPerson.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewPerson.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewPerson.Columns.AddRange(new DataGridViewColumn[] { CheckBox, personFirstName, personLastName, personFullName });
@@ -104,7 +105,7 @@
             dataGridViewPerson.RowHeadersVisible = false;
             dataGridViewPerson.RowHeadersWidth = 82;
             dataGridViewPerson.Size = new Size(1382, 300);
-            dataGridViewPerson.TabIndex = 5;
+            dataGridViewPerson.TabIndex = 6;
             dataGridViewPerson.CellContentClick += dataGridViewPerson_CellContentClick;
             // 
             // CheckBox
@@ -160,14 +161,14 @@
             txtFirstName.Location = new Point(178, 141);
             txtFirstName.Name = "txtFirstName";
             txtFirstName.Size = new Size(200, 39);
-            txtFirstName.TabIndex = 10;
+            txtFirstName.TabIndex = 0;
             // 
             // txtLastName
             // 
             txtLastName.Location = new Point(853, 141);
             txtLastName.Name = "txtLastName";
             txtLastName.Size = new Size(200, 39);
-            txtLastName.TabIndex = 11;
+            txtLastName.TabIndex = 1;
             // 
             // frmPerson
             // 

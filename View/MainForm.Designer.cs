@@ -38,6 +38,7 @@
             btnPerson.Name = "btnPerson";
             btnPerson.Size = new Size(550, 232);
             btnPerson.TabIndex = 0;
+            btnPerson.TabStop = false;
             btnPerson.Text = "Person";
             btnPerson.UseVisualStyleBackColor = true;
             btnPerson.Click += btnPerson_Click;
@@ -48,6 +49,7 @@
             btnProduct.Name = "btnProduct";
             btnProduct.Size = new Size(550, 232);
             btnProduct.TabIndex = 1;
+            btnProduct.TabStop = false;
             btnProduct.Text = "Product";
             btnProduct.UseVisualStyleBackColor = true;
             btnProduct.Click += button2_Click;

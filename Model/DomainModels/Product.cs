@@ -1,5 +1,4 @@
-﻿
-namespace Model.DomainModels
+﻿namespace Model.DomainModels
 {
     public class Product
     {

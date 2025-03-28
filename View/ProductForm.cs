@@ -2,7 +2,6 @@
 using Model.DomainModels;
 using Service;
 
-
 namespace View
 {
     public partial class frmProduct : Form
