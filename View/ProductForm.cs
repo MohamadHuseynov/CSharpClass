@@ -20,11 +20,6 @@ namespace View
         }
 
 
-
-        public bool ifCheckBox = false;
-
-
-
         private void btnAdd_Click(object sender, EventArgs e)
         {
 
@@ -247,7 +242,6 @@ namespace View
                 txtQuantity.Clear();
             }
         }
-
 
         private void ClearFields()
         {
