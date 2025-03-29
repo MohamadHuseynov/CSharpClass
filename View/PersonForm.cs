@@ -29,6 +29,11 @@ namespace View
                     FirstName = txtFirstName.Text,
                     LastName = txtLastName.Text
                 };
+                if (string.IsNullOrWhiteSpace(txtFirstName.Text) || string.IsNullOrWhiteSpace(txtLastName.Text))
+                {
+                    MessageBox.Show("Please fill out both text boxes", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
 
                 bool isValid = true;
 
@@ -60,8 +65,13 @@ namespace View
                 {
                     person.FirstName = txtFirstName.Text;
                     person.LastName = txtLastName.Text;
-                    
-                    
+
+                    if (string.IsNullOrWhiteSpace(txtFirstName.Text) || string.IsNullOrWhiteSpace(txtLastName.Text))
+                    {
+                        MessageBox.Show("Please fill out both text boxes", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
 
                     db.SaveChanges();
                     LoadData();
@@ -111,6 +121,7 @@ namespace View
             LoadData();
         }
 
+
         private void btnBack_Click(object sender, EventArgs e)
         {
             this.Close();
@@ -127,7 +138,7 @@ namespace View
 
             txtFirstName.Text = dgvPerson.Cells[1].Value?.ToString();
             txtLastName.Text = dgvPerson.Cells[2].Value?.ToString();
-            
+
 
             selectedRowIndex = e.RowIndex;
 
@@ -215,13 +226,13 @@ namespace View
             {
                 txtFirstName.Text = selectedRow.Cells[1].Value?.ToString() ?? "";
                 txtLastName.Text = selectedRow.Cells[2].Value?.ToString() ?? "";
-                
+
             }
             else
             {
                 txtFirstName.Clear();
                 txtLastName.Clear();
-                
+
             }
         }
 

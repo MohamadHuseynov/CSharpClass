@@ -31,6 +31,12 @@ namespace View
 
                 bool isValid = true;
 
+                if (string.IsNullOrWhiteSpace(txtTitle.Text))
+                {
+                    MessageBox.Show("Please enter a valid title", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
                 try
                 {
                     newProduct.UnitPrice = Convert.ToInt32(txtUnitPrice.Text);
@@ -77,8 +83,28 @@ namespace View
                 if (product != null)
                 {
                     product.Title = txtTitle.Text;
-                    product.UnitPrice = Convert.ToInt32(txtUnitPrice.Text);
-                    product.Quantity = Convert.ToInt32(txtQuantity.Text);
+
+                    if (string.IsNullOrWhiteSpace(txtTitle.Text))
+                    {
+                        MessageBox.Show("Please enter a valid title", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    try
+                    {
+                        product.UnitPrice = Convert.ToInt32(txtUnitPrice.Text);
+                    }
+                    catch
+                    {
+                        MessageBox.Show("Please enter only numbers in unit price", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    try
+                    {
+                        product.Quantity = Convert.ToInt32(txtQuantity.Text);
+                    }
+                    catch
+                    {
+                        MessageBox.Show("Please enter only numbers in quantity", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
 
                     db.SaveChanges();
                     LoadData();
