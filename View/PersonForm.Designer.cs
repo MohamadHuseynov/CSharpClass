@@ -34,14 +34,15 @@
             btnRefresh = new Button();
             btnBack = new Button();
             dataGridViewPerson = new DataGridView();
-            CheckBox = new DataGridViewCheckBoxColumn();
-            personFirstName = new DataGridViewTextBoxColumn();
-            personLastName = new DataGridViewTextBoxColumn();
-            personFullName = new DataGridViewTextBoxColumn();
             lblFirstName = new Label();
             lblLastName = new Label();
             txtFirstName = new TextBox();
             txtLastName = new TextBox();
+            CheckBox = new DataGridViewCheckBoxColumn();
+            colId = new DataGridViewTextBoxColumn();
+            personFirstName = new DataGridViewTextBoxColumn();
+            personLastName = new DataGridViewTextBoxColumn();
+            personFullName = new DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)dataGridViewPerson).BeginInit();
             SuspendLayout();
             // 
@@ -101,44 +102,14 @@
             dataGridViewPerson.AllowUserToAddRows = false;
             dataGridViewPerson.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewPerson.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewPerson.Columns.AddRange(new DataGridViewColumn[] { CheckBox, personFirstName, personLastName, personFullName });
+            dataGridViewPerson.Columns.AddRange(new DataGridViewColumn[] { CheckBox, colId, personFirstName, personLastName, personFullName });
             dataGridViewPerson.Location = new Point(25, 319);
             dataGridViewPerson.Name = "dataGridViewPerson";
             dataGridViewPerson.RowHeadersVisible = false;
             dataGridViewPerson.RowHeadersWidth = 82;
             dataGridViewPerson.Size = new Size(1382, 300);
             dataGridViewPerson.TabIndex = 6;
-            dataGridViewPerson.CellContentClick += dataGridViewPerson_CellContentClick;
-            // 
-            // CheckBox
-            // 
-            CheckBox.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            CheckBox.FillWeight = 73.71795F;
-            CheckBox.HeaderText = "";
-            CheckBox.MinimumWidth = 10;
-            CheckBox.Name = "CheckBox";
-            CheckBox.Width = 50;
-            // 
-            // personFirstName
-            // 
-            personFirstName.FillWeight = 106.570511F;
-            personFirstName.HeaderText = "First Name";
-            personFirstName.MinimumWidth = 10;
-            personFirstName.Name = "personFirstName";
-            // 
-            // personLastName
-            // 
-            personLastName.FillWeight = 106.570511F;
-            personLastName.HeaderText = "Last Name";
-            personLastName.MinimumWidth = 10;
-            personLastName.Name = "personLastName";
-            // 
-            // personFullName
-            // 
-            personFullName.FillWeight = 106.570511F;
-            personFullName.HeaderText = "Full Name";
-            personFullName.MinimumWidth = 10;
-            personFullName.Name = "personFullName";
+            dataGridViewPerson.CellContentClick += dataGridViewPerson_CellValueChanged;
             // 
             // lblFirstName
             // 
@@ -171,6 +142,44 @@
             txtLastName.Name = "txtLastName";
             txtLastName.Size = new Size(200, 39);
             txtLastName.TabIndex = 1;
+            // 
+            // CheckBox
+            // 
+            CheckBox.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            CheckBox.FillWeight = 73.71795F;
+            CheckBox.HeaderText = "";
+            CheckBox.MinimumWidth = 10;
+            CheckBox.Name = "CheckBox";
+            CheckBox.Width = 50;
+            // 
+            // colId
+            // 
+            colId.DataPropertyName = "Id";
+            colId.HeaderText = "ID";
+            colId.MinimumWidth = 10;
+            colId.Name = "colId";
+            colId.Visible = false;
+            // 
+            // personFirstName
+            // 
+            personFirstName.FillWeight = 106.570511F;
+            personFirstName.HeaderText = "First Name";
+            personFirstName.MinimumWidth = 10;
+            personFirstName.Name = "personFirstName";
+            // 
+            // personLastName
+            // 
+            personLastName.FillWeight = 106.570511F;
+            personLastName.HeaderText = "Last Name";
+            personLastName.MinimumWidth = 10;
+            personLastName.Name = "personLastName";
+            // 
+            // personFullName
+            // 
+            personFullName.FillWeight = 106.570511F;
+            personFullName.HeaderText = "Full Name";
+            personFullName.MinimumWidth = 10;
+            personFullName.Name = "personFullName";
             // 
             // frmPerson
             // 
@@ -208,6 +217,7 @@
         private TextBox txtFirstName;
         private TextBox txtLastName;
         private DataGridViewCheckBoxColumn CheckBox;
+        private DataGridViewTextBoxColumn colId;
         private DataGridViewTextBoxColumn personFirstName;
         private DataGridViewTextBoxColumn personLastName;
         private DataGridViewTextBoxColumn personFullName;

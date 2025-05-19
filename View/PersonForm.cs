@@ -1,248 +1,310 @@
-﻿using Model;
-using Model.DomainModels;
-using Service;
+﻿using Service; // For IPersonService
+using Service.DTOs; // For PersonDto, CreatePersonDto, UpdatePersonDto
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace View
 {
     public partial class frmPerson : Form
     {
-        private readonly PersonService _personService;
-        private int selectedPersonId = -1;
-        private int selectedRowIndex = -1;
+        private readonly IPersonService _personService;
+        private int _selectedPersonIdForEdit = 0;
 
-        public frmPerson(PersonService personService)
+        // --- These names MUST match the (Name) property of your DataGridView columns in the Designer ---
+        private const string CheckBoxColumnName = "CheckBox";
+        private const string IdColumnName = "colId";
+        private const string FirstNameColumnName = "personFirstName";
+        private const string LastNameColumnName = "personLastName";
+        private const string FullNameColumnName = "personFullName";
+        // --- End of column name definitions ---
+
+        public frmPerson(IPersonService personService)
         {
             InitializeComponent();
-            _personService = personService;
-            btnDelete.Enabled = false;
-            btnEdit.Enabled = false;
+            _personService = personService ?? throw new ArgumentNullException(nameof(personService));
+
+            this.Shown += frmPerson_Shown;
+            this.dataGridViewPerson.CurrentCellDirtyStateChanged += dataGridViewPerson_CurrentCellDirtyStateChanged;
+            this.dataGridViewPerson.CellValueChanged += dataGridViewPerson_CellValueChanged;
+            // CellClick is generally not needed for checkbox logic if the above two are used correctly.
+            // this.dataGridViewPerson.CellClick += dataGridViewPerson_CellClick;
         }
 
-
-        private void btnAdd_Click(object sender, EventArgs e)
+        private void dataGridViewPerson_CurrentCellDirtyStateChanged(object sender, EventArgs e)
         {
-
-            using (var db = new FinalProjectDbContext())
+            if (dataGridViewPerson.IsCurrentCellDirty)
             {
-                Person newPerson = new Person
+                // If the dirty cell is our checkbox cell, commit the edit immediately.
+                // This will then reliably trigger CellValueChanged.
+                if (dataGridViewPerson.CurrentCell is DataGridViewCheckBoxCell &&
+                    dataGridViewPerson.CurrentCell.OwningColumn.Name == CheckBoxColumnName)
                 {
-                    FirstName = txtFirstName.Text,
-                    LastName = txtLastName.Text
-                };
-                if (string.IsNullOrWhiteSpace(txtFirstName.Text) || string.IsNullOrWhiteSpace(txtLastName.Text))
-                {
-                    MessageBox.Show("Please fill out both text boxes", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    dataGridViewPerson.CommitEdit(DataGridViewDataErrorContexts.Commit);
                 }
-
-                bool isValid = true;
-
-
-                if (isValid)
-                {
-                    db.Person.Add(newPerson); // ذخیره در دیتابیس
-                    db.SaveChanges(); // ذخیره تغییرات
-                    LoadData(); // رفرش لیست بعد از اضافه شدن 
-                }
-                ClearFields();
-                UpdateTextBoxes();
-                UpdateButtonStates();
             }
         }
 
-        private void btnEdit_Click(object sender, EventArgs e)
+        private void dataGridViewPerson_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
-
-            if (selectedRowIndex == -1 || selectedRowIndex >= dataGridViewPerson.Rows.Count) return;
-
-            using (var db = new FinalProjectDbContext())
+            // This event fires AFTER a cell's value has been committed.
+            // We are interested if it's our checkbox column.
+            if (e.RowIndex >= 0 && dataGridViewPerson.Columns[e.ColumnIndex].Name == CheckBoxColumnName)
             {
-                DataGridViewRow row = dataGridViewPerson.Rows[selectedRowIndex];
-                string firstName = row.Cells[1].Value?.ToString();
+                // A checkbox state has changed and been committed.
+                // Now, update the UI state based on all checkbox selections.
+                UpdateButtonStatesAndTextBoxes();
+            }
+        }
 
-                var person = db.Person.FirstOrDefault(p => p.FirstName == firstName);
-                if (person != null)
+        private void frmPerson_Shown(object sender, EventArgs e)
+        {
+            ClearAllFieldsAndSelections();
+            UpdateButtonStatesAndTextBoxes();
+            ToggleGeneralControls(true);
+        }
+
+        private async Task LoadDataAsync()
+        {
+            this.Cursor = Cursors.WaitCursor;
+            ToggleGeneralControls(false);
+
+            try
+            {
+                var result = await _personService.GetAllPersonsAsync();
+
+                // Detach event handlers that might fire during programmatic row changes
+                this.dataGridViewPerson.CurrentCellDirtyStateChanged -= dataGridViewPerson_CurrentCellDirtyStateChanged;
+                this.dataGridViewPerson.CellValueChanged -= dataGridViewPerson_CellValueChanged;
+
+                dataGridViewPerson.Rows.Clear();
+
+                if (result.IsSuccess && result.Data != null && result.Data.Any())
                 {
-                    person.FirstName = txtFirstName.Text;
-                    person.LastName = txtLastName.Text;
-
-                    if (string.IsNullOrWhiteSpace(txtFirstName.Text) || string.IsNullOrWhiteSpace(txtLastName.Text))
+                    foreach (var personDto in result.Data)
                     {
-                        MessageBox.Show("Please fill out both text boxes", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
+                        // Adding row: Checkbox, ID, FirstName, LastName, FullName
+                        // The order of cells here is by index, but we access them by name later.
+                        // Ensure your AddRange in Designer or manual column add matches this conceptual order
+                        // if you were to rely on indices (but using names is better).
+                        dataGridViewPerson.Rows.Add(false, personDto.Id, personDto.FirstName, personDto.LastName, personDto.FullName);
                     }
-
-
-                    db.SaveChanges();
-                    LoadData();
-
                 }
-                ClearFields();
-                UpdateTextBoxes();
-                UpdateButtonStates();
+                else if (!result.IsSuccess)
+                {
+                    MessageBox.Show(result.Message, "Error Loading Data", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An unexpected error occurred while loading data: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                // Re-attach event handlers
+                this.dataGridViewPerson.CurrentCellDirtyStateChanged += dataGridViewPerson_CurrentCellDirtyStateChanged;
+                this.dataGridViewPerson.CellValueChanged += dataGridViewPerson_CellValueChanged;
 
+                ClearAllFieldsAndSelections();
+                UpdateButtonStatesAndTextBoxes();
+                ToggleGeneralControls(true);
+                this.Cursor = Cursors.Default;
             }
         }
 
-        private void btnDelete_Click(object sender, EventArgs e)
+        private void ToggleGeneralControls(bool enabled)
         {
+            btnAdd.Enabled = enabled;
+            btnRefresh.Enabled = enabled;
+            txtFirstName.Enabled = enabled;
+            txtLastName.Enabled = enabled;
+            dataGridViewPerson.Enabled = enabled;
+            btnBack.Enabled = enabled;
 
-            using (var db = new FinalProjectDbContext())
+            if (enabled) UpdateButtonStatesAndTextBoxes();
+            else { btnEdit.Enabled = false; btnDelete.Enabled = false; }
+        }
+
+        private async void btnAdd_Click(object sender, EventArgs e)
+        {
+            if (!ValidateInputFields()) return;
+            var createDto = new CreatePersonDto
             {
-                List<Person> personsToDelete = new List<Person>();
+                FirstName = txtFirstName.Text.Trim(),
+                LastName = txtLastName.Text.Trim()
+            };
+            this.Cursor = Cursors.WaitCursor;
+            ToggleGeneralControls(false);
+            var result = await _personService.AddPersonAsync(createDto);
+            this.Cursor = Cursors.Default;
+            if (result.IsSuccess) { await LoadDataAsync(); }
+            else { ToggleGeneralControls(true); MessageBox.Show(result.Message, "Error Adding", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+        }
+
+        private async void btnEdit_Click(object sender, EventArgs e)
+        {
+            if (_selectedPersonIdForEdit == 0)
+            {
+                MessageBox.Show("Please select exactly one person using the checkbox to edit.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            if (!ValidateInputFields()) return;
+            var updateDto = new UpdatePersonDto
+            {
+                FirstName = txtFirstName.Text.Trim(),
+                LastName = txtLastName.Text.Trim()
+            };
+            this.Cursor = Cursors.WaitCursor;
+            ToggleGeneralControls(false);
+            var result = await _personService.UpdatePersonAsync(_selectedPersonIdForEdit, updateDto);
+            this.Cursor = Cursors.Default;
+            if (result.IsSuccess) { await LoadDataAsync(); }
+            else { ToggleGeneralControls(true); MessageBox.Show(result.Message, "Error Editing", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+        }
+
+        private async void btnDelete_Click(object sender, EventArgs e)
+        {
+            var idsToDelete = GetSelectedPersonIdsFromGridCheckboxes();
+            if (!idsToDelete.Any())
+            {
+                MessageBox.Show("Please select at least one person using the checkboxes to delete.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            if (MessageBox.Show($"Are you sure you want to delete {idsToDelete.Count} selected person(s)?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            {
+                this.Cursor = Cursors.WaitCursor;
+                ToggleGeneralControls(false);
+                int successCount = 0; int failCount = 0; string errorDetails = "";
+                foreach (var idInList in idsToDelete)
+                {
+                    var result = await _personService.DeletePersonAsync(idInList);
+                    if (result.IsSuccess) successCount++;
+                    else { failCount++; errorDetails += $"ID {idInList}: {result.Message}\n"; }
+                }
+                this.Cursor = Cursors.Default;
+                string finalMessage = "";
+                if (successCount > 0) finalMessage += $"{successCount} person(s) deleted successfully.\n";
+                if (failCount > 0) finalMessage += $"{failCount} person(s) failed to delete.\nDetails:\n{errorDetails}";
+                MessageBox.Show(finalMessage.Trim(), "Delete Result", MessageBoxButtons.OK, (failCount > 0) ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+                await LoadDataAsync();
+            }
+        }
+
+        private void UpdateButtonStatesAndTextBoxes()
+        {
+            var checkedIds = GetSelectedPersonIdsFromGridCheckboxes();
+            int checkedCount = checkedIds.Count;
+
+            DataGridViewRow firstSelectedRowForEditVisuals = null;
+            _selectedPersonIdForEdit = 0;
+
+            if (checkedCount == 1)
+            {
+                btnEdit.Enabled = true;
+                btnDelete.Enabled = true; // Also enable delete if one is checked
+
+                int singleId = checkedIds.First();
+                _selectedPersonIdForEdit = singleId;
 
                 foreach (DataGridViewRow row in dataGridViewPerson.Rows)
                 {
-                    if (Convert.ToBoolean(row.Cells[0].Value))
+                    if (!row.IsNewRow && row.Cells[IdColumnName].Value != null && Convert.ToInt32(row.Cells[IdColumnName].Value) == singleId)
                     {
-                        string firstName = row.Cells[1].Value?.ToString();
-                        var person = db.Person.FirstOrDefault(p => p.FirstName == firstName);
-                        if (person != null)
-                        {
-                            personsToDelete.Add(person);
-                        }
+                        firstSelectedRowForEditVisuals = row;
+                        break;
                     }
                 }
-
-                if (personsToDelete.Count > 0)
-                {
-                    db.Person.RemoveRange(personsToDelete);
-                    db.SaveChanges();
-                    LoadData();
-                }
-                ClearFields();
-                UpdateTextBoxes();
-                UpdateButtonStates();
-            }
-        }
-
-        private void btnRefresh_Click(object sender, EventArgs e)
-        {
-            LoadData();
-        }
-
-
-        private void btnBack_Click(object sender, EventArgs e)
-        {
-            this.Close();
-
-        }
-
-        private void dataGridViewPerson_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-
-            if (e.RowIndex < 0) return; // جلوگیری از کلیک روی هدر ستون
-
-            DataGridViewRow dgvPerson = dataGridViewPerson.Rows[e.RowIndex];
-
-            txtFirstName.Text = dgvPerson.Cells[1].Value?.ToString();
-            txtLastName.Text = dgvPerson.Cells[2].Value?.ToString();
-
-
-            selectedRowIndex = e.RowIndex;
-
-            // چک کردن اینکه روی چک‌باکس کلیک شده یا نه
-            if (e.ColumnIndex == 0)
-            {
-                DataGridViewCheckBoxCell checkBoxCell = (DataGridViewCheckBoxCell)dgvPerson.Cells[0];
-                checkBoxCell.Value = !(checkBoxCell.Value != null && (bool)checkBoxCell.Value);
-                dataGridViewPerson.EndEdit();
-                UpdateButtonStates();
-                UpdateTextBoxes();
-            }
-        }
-
-
-        private void frmPerson_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private void LoadData()
-        {
-            using (var db = new FinalProjectDbContext())
-            {
-                var persons = db.Person.ToList(); // دریافت کاربر از دیتابیس
-
-                dataGridViewPerson.Rows.Clear(); // پاک کردن داده‌های قبلی
-                foreach (var person in persons)
-                {
-                    dataGridViewPerson.Rows.Add(false, person.FirstName, person.LastName, person.FullName);
-                }
-            }
-        }
-
-        private void UpdateButtonStates()
-        {
-            int checkedCount = 0;
-
-            // شمارش تعداد چک باکس‌های تیک خورده
-            foreach (DataGridViewRow row in dataGridViewPerson.Rows)
-            {
-                if (Convert.ToBoolean(row.Cells[0].Value)) // فرض کنید ستون چک باکس در ایندکس 0 است
-                {
-                    checkedCount++;
-                }
-            }
-
-            // فعال و غیرفعال کردن دکمه‌ها بر اساس تعداد چک باکس‌های تیک خورده
-            if (checkedCount == 1)
-            {
-                btnEdit.Enabled = true; // فقط دکمه ادیت فعال می‌شود
-                btnDelete.Enabled = true; // دکمه دیلیت هم فعال می‌شود
             }
             else if (checkedCount > 1)
             {
-                btnEdit.Enabled = false; // دکمه ادیت غیرفعال می‌شود
-                btnDelete.Enabled = true; // فقط دکمه دیلیت فعال می‌شود
+                btnEdit.Enabled = false;
+                btnDelete.Enabled = true;
             }
-            else
+            else // checkedCount == 0
             {
-                btnEdit.Enabled = false; // هیچ دکمه‌ای فعال نیست
-                btnDelete.Enabled = false; // هیچ دکمه‌ای فعال نیست
-            }
-        }
-
-        private void UpdateTextBoxes()
-        {
-            int selectedCount = 0;
-            DataGridViewRow selectedRow = null;
-
-            foreach (DataGridViewRow row in dataGridViewPerson.Rows)
-            {
-                DataGridViewCheckBoxCell checkBox = row.Cells[0] as DataGridViewCheckBoxCell;
-                if (checkBox != null && checkBox.Value != null && (bool)checkBox.Value)
-                {
-                    selectedCount++;
-                    if (selectedCount == 1)
-                    {
-                        selectedRow = row; // ذخیره اولین ردیف انتخاب‌شده
-                    }
-                }
+                btnEdit.Enabled = false;
+                btnDelete.Enabled = false;
             }
 
-            if (selectedCount == 1)
+            if (firstSelectedRowForEditVisuals != null)
             {
-                txtFirstName.Text = selectedRow.Cells[1].Value?.ToString() ?? "";
-                txtLastName.Text = selectedRow.Cells[2].Value?.ToString() ?? "";
-
+                txtFirstName.Text = firstSelectedRowForEditVisuals.Cells[FirstNameColumnName].Value?.ToString() ?? "";
+                txtLastName.Text = firstSelectedRowForEditVisuals.Cells[LastNameColumnName].Value?.ToString() ?? "";
             }
             else
             {
                 txtFirstName.Clear();
                 txtLastName.Clear();
-
             }
         }
 
-        private void ClearFields()
+        private List<int> GetSelectedPersonIdsFromGridCheckboxes()
+        {
+            var ids = new List<int>();
+            foreach (DataGridViewRow row in dataGridViewPerson.Rows)
+            {
+                if (row.IsNewRow) continue;
+                DataGridViewCheckBoxCell checkBoxCell = row.Cells[CheckBoxColumnName] as DataGridViewCheckBoxCell;
+                if (checkBoxCell != null && checkBoxCell.Value != null && Convert.ToBoolean(checkBoxCell.Value))
+                {
+                    if (row.Cells[IdColumnName].Value != null && int.TryParse(row.Cells[IdColumnName].Value.ToString(), out int id))
+                    {
+                        ids.Add(id);
+                    }
+                }
+            }
+            return ids;
+        }
+
+        private void ClearAllFieldsAndSelections()
         {
             txtFirstName.Clear();
             txtLastName.Clear();
-            selectedPersonId = -1;
+            _selectedPersonIdForEdit = 0;
+
+            if (dataGridViewPerson.Rows.Count > 0)
+            {
+                this.dataGridViewPerson.CurrentCellDirtyStateChanged -= dataGridViewPerson_CurrentCellDirtyStateChanged;
+                this.dataGridViewPerson.CellValueChanged -= dataGridViewPerson_CellValueChanged;
+                foreach (DataGridViewRow row in dataGridViewPerson.Rows)
+                {
+                    if (row.IsNewRow) continue;
+                    DataGridViewCheckBoxCell checkBoxCell = row.Cells[CheckBoxColumnName] as DataGridViewCheckBoxCell;
+                    if (checkBoxCell != null) { checkBoxCell.Value = false; }
+                }
+                this.dataGridViewPerson.CurrentCellDirtyStateChanged += dataGridViewPerson_CurrentCellDirtyStateChanged;
+                this.dataGridViewPerson.CellValueChanged += dataGridViewPerson_CellValueChanged;
+            }
+            // UpdateButtonStatesAndTextBoxes(); // Will be called by the method that invoked this clear (e.g., LoadDataAsync, Shown)
         }
 
+        private bool ValidateInputFields()
+        {
+            if (string.IsNullOrWhiteSpace(txtFirstName.Text))
+            {
+                MessageBox.Show("First name is required.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtFirstName.Focus(); return false;
+            }
+            if (string.IsNullOrWhiteSpace(txtLastName.Text))
+            {
+                MessageBox.Show("Last name is required.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtLastName.Focus(); return false;
+            }
+            return true;
+        }
 
+        private async void btnRefresh_Click(object sender, EventArgs e) { await LoadDataAsync(); }
+        private void btnBack_Click(object sender, EventArgs e) { this.Close(); }
+        private void frmPerson_Load(object sender, EventArgs e) { /* Initial one-time setup */ }
+
+        // Optional: If CellClick is still desired for other interactions (e.g., selecting a row without checking the box)
+        // private void dataGridViewPerson_CellClick(object sender, DataGridViewCellEventArgs e)
+        // {
+        //     if (e.RowIndex < 0) return; // Header
+        //     // Handle clicks on non-checkbox cells if needed
+        //     // UpdateButtonStatesAndTextBoxes(); // May be redundant if CellValueChanged handles it
+        // }
     }
 }

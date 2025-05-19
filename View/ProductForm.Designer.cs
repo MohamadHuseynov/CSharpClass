@@ -35,6 +35,7 @@
             btnAdd = new Button();
             dataGridViewProduct = new DataGridView();
             CheckBox = new DataGridViewCheckBoxColumn();
+            colId = new DataGridViewTextBoxColumn();
             productTitle = new DataGridViewTextBoxColumn();
             productUnitPrice = new DataGridViewTextBoxColumn();
             productQuantity = new DataGridViewTextBoxColumn();
@@ -103,7 +104,7 @@
             dataGridViewProduct.AllowUserToAddRows = false;
             dataGridViewProduct.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewProduct.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewProduct.Columns.AddRange(new DataGridViewColumn[] { CheckBox, productTitle, productUnitPrice, productQuantity });
+            dataGridViewProduct.Columns.AddRange(new DataGridViewColumn[] { CheckBox, colId, productTitle, productUnitPrice, productQuantity });
             dataGridViewProduct.Location = new Point(19, 325);
             dataGridViewProduct.Name = "dataGridViewProduct";
             dataGridViewProduct.ReadOnly = true;
@@ -121,6 +122,15 @@
             CheckBox.Name = "CheckBox";
             CheckBox.ReadOnly = true;
             CheckBox.Width = 50;
+            // 
+            // colId
+            // 
+            colId.DataPropertyName = "Id";
+            colId.HeaderText = "ID";
+            colId.MinimumWidth = 10;
+            colId.Name = "colId";
+            colId.ReadOnly = true;
+            colId.Visible = false;
             // 
             // productTitle
             // 
@@ -176,7 +186,6 @@
             txtTitle.Name = "txtTitle";
             txtTitle.Size = new Size(200, 39);
             txtTitle.TabIndex = 1;
-
             // 
             // txtUnitPrice
             // 
@@ -184,7 +193,6 @@
             txtUnitPrice.Name = "txtUnitPrice";
             txtUnitPrice.Size = new Size(200, 39);
             txtUnitPrice.TabIndex = 2;
-
             // 
             // txtQuantity
             // 
@@ -233,6 +241,7 @@
         private TextBox txtUnitPrice;
         private TextBox txtQuantity;
         private DataGridViewCheckBoxColumn CheckBox;
+        private DataGridViewTextBoxColumn colId;
         private DataGridViewTextBoxColumn productTitle;
         private DataGridViewTextBoxColumn productUnitPrice;
         private DataGridViewTextBoxColumn productQuantity;

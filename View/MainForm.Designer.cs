@@ -41,7 +41,7 @@
             btnPerson.TabStop = false;
             btnPerson.Text = "Person";
             btnPerson.UseVisualStyleBackColor = true;
-            btnPerson.Click += btnPerson_Click;
+            btnPerson.Click += btnPerson_Click_1;
             // 
             // btnProduct
             // 
@@ -52,7 +52,7 @@
             btnProduct.TabStop = false;
             btnProduct.Text = "Product";
             btnProduct.UseVisualStyleBackColor = true;
-            btnProduct.Click += button2_Click;
+            btnProduct.Click += btnProduct_Click_1;
             // 
             // frmMain
             // 
