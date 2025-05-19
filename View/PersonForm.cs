@@ -1,10 +1,6 @@
-﻿using Service; // For IPersonService
-using Service.DTOs; // For PersonDto, CreatePersonDto, UpdatePersonDto
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using Service; 
+using Service.DTOs;
+
 
 namespace View
 {
@@ -299,12 +295,6 @@ namespace View
         private void btnBack_Click(object sender, EventArgs e) { this.Close(); }
         private void frmPerson_Load(object sender, EventArgs e) { /* Initial one-time setup */ }
 
-        // Optional: If CellClick is still desired for other interactions (e.g., selecting a row without checking the box)
-        // private void dataGridViewPerson_CellClick(object sender, DataGridViewCellEventArgs e)
-        // {
-        //     if (e.RowIndex < 0) return; // Header
-        //     // Handle clicks on non-checkbox cells if needed
-        //     // UpdateButtonStatesAndTextBoxes(); // May be redundant if CellValueChanged handles it
-        // }
+       
     }
 }

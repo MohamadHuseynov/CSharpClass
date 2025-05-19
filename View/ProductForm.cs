@@ -1,10 +1,6 @@
-﻿using Service; // For IProductService
-using Service.DTOs; // For ProductDto, CreateProductDto, UpdateProductDto
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using Service; 
+using Service.DTOs;
+
 
 namespace View
 {
@@ -81,7 +77,7 @@ namespace View
             if (enabled) UpdateButtonStatesAndTextBoxes(); else { btnEdit.Enabled = false; btnDelete.Enabled = false; }
         }
 
-        // --- dataGridViewProduct_CellContentClick: Simplified and Direct ---
+     
         private void dataGridViewProduct_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return; // Click on header, ignore
@@ -195,10 +191,6 @@ namespace View
                 }
             }
         }
-
-        // --- btnAdd, btnEdit, btnDelete, ValidateInputFields, btnRefresh, btnBack, frmProduct_Load ---
-        // --- These methods should be IDENTICAL to the previous "Full Code for View/frmProduct.cs" ---
-        // --- I will paste them here again for completeness, ensure they use _productService ---
 
         private async void btnAdd_Click(object sender, EventArgs e)
         {

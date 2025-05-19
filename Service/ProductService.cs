@@ -1,11 +1,8 @@
 ﻿using Model;
-using Model.DomainModels; // For the Product Entity
-using Service.DTOs;      // For Product DTOs
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.EntityFrameworkCore; // For async EF methods and AsNoTracking()
-using System.Threading.Tasks;     // For Task
+using Model.DomainModels; 
+using Service.DTOs;      
+using Microsoft.EntityFrameworkCore; 
+
 
 namespace Service
 {
@@ -25,8 +22,7 @@ namespace Service
             {
                 return ServiceResult.Fail("Product data for adding is missing.");
             }
-            // More detailed validation can be done here, or rely on DTO attributes if you have a mechanism to trigger them.
-            // For simplicity, we'll do basic checks here.
+            
             if (string.IsNullOrWhiteSpace(productDto.Title))
             {
                 return ServiceResult.Fail("Product title is required.");

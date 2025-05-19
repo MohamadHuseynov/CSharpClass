@@ -1,6 +1,5 @@
-﻿using Service.DTOs; // For ProductDto, CreateProductDto, etc.
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using Service.DTOs; 
+
 
 namespace Service
 {

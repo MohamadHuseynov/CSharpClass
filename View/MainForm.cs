@@ -1,6 +1,4 @@
 ﻿using Service;
-using System;
-using System.Windows.Forms;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace View
@@ -8,9 +6,10 @@ namespace View
     public partial class frmMain : Form
     {
         private readonly IPersonService _personService;
-        private readonly ProductService _productService; // Change to IProductService when ready
+        private readonly IProductService _productService;
 
-        public frmMain(IPersonService personService, ProductService productService)
+        // Constructor now takes interfaces for both services
+        public frmMain(IPersonService personService, IProductService productService)
         {
             InitializeComponent();
             _personService = personService ?? throw new ArgumentNullException(nameof(personService));
@@ -33,24 +32,21 @@ namespace View
 
         private void btnProduct_Click_1(object sender, EventArgs e)
         {
-            // Using direct instantiation for now if frmProduct is not DI-ready
-            // This assumes frmProduct constructor takes ProductService
-            if (_productService == null)
+           
+            if (_productService == null) // This check is against the IProductService field now
             {
                 MessageBox.Show("Internal error: Product service not available.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            frmProduct productForm = new frmProduct(_productService); // Manual instantiation
-            productForm.ShowDialog(this);
 
-            // When frmProduct is DI-ready:
-            /*
+            
             using (var scope = Program.ServiceProvider.CreateScope())
             {
+                // This assumes frmProduct's constructor now takes IProductService
+                // and frmProduct is registered in Program.cs ConfigureServices
                 var productForm = scope.ServiceProvider.GetRequiredService<frmProduct>();
                 productForm.ShowDialog(this);
             }
-            */
         }
     }
 }

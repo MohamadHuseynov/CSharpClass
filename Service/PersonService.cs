@@ -1,11 +1,8 @@
 ﻿using Model;
 using Model.DomainModels;
 using Service.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
+
 
 namespace Service
 {
@@ -13,8 +10,6 @@ namespace Service
     {
         private readonly FinalProjectDbContext _context;
 
-        // Constructor expects a DbContext instance.
-        // DI will provide this, or if used without DI, it must be manually provided.
         public PersonService(FinalProjectDbContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));

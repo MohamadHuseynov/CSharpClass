@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations; // Optional
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Service.DTOs
 {

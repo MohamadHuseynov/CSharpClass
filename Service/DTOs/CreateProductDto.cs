@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations; // Optional: for validation attributes
+﻿using System.ComponentModel.DataAnnotations; 
 
 namespace Service.DTOs
 {
