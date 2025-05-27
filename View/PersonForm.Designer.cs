@@ -34,15 +34,15 @@
             btnRefresh = new Button();
             btnBack = new Button();
             dataGridViewPerson = new DataGridView();
-            lblFirstName = new Label();
-            lblLastName = new Label();
-            txtFirstName = new TextBox();
-            txtLastName = new TextBox();
             CheckBox = new DataGridViewCheckBoxColumn();
             colId = new DataGridViewTextBoxColumn();
             personFirstName = new DataGridViewTextBoxColumn();
             personLastName = new DataGridViewTextBoxColumn();
             personFullName = new DataGridViewTextBoxColumn();
+            lblFirstName = new Label();
+            lblLastName = new Label();
+            txtFirstName = new TextBox();
+            txtLastName = new TextBox();
             ((System.ComponentModel.ISupportInitialize)dataGridViewPerson).BeginInit();
             SuspendLayout();
             // 
@@ -109,39 +109,7 @@
             dataGridViewPerson.RowHeadersWidth = 82;
             dataGridViewPerson.Size = new Size(1382, 300);
             dataGridViewPerson.TabIndex = 6;
-            dataGridViewPerson.CellContentClick += dataGridViewPerson_CellValueChanged;
-            // 
-            // lblFirstName
-            // 
-            lblFirstName.AutoSize = true;
-            lblFirstName.Location = new Point(25, 148);
-            lblFirstName.Name = "lblFirstName";
-            lblFirstName.Size = new Size(134, 32);
-            lblFirstName.TabIndex = 7;
-            lblFirstName.Text = "First Name:";
-            // 
-            // lblLastName
-            // 
-            lblLastName.AutoSize = true;
-            lblLastName.Location = new Point(695, 148);
-            lblLastName.Name = "lblLastName";
-            lblLastName.Size = new Size(131, 32);
-            lblLastName.TabIndex = 8;
-            lblLastName.Text = "Last Name:";
-            // 
-            // txtFirstName
-            // 
-            txtFirstName.Location = new Point(178, 141);
-            txtFirstName.Name = "txtFirstName";
-            txtFirstName.Size = new Size(200, 39);
-            txtFirstName.TabIndex = 0;
-            // 
-            // txtLastName
-            // 
-            txtLastName.Location = new Point(853, 141);
-            txtLastName.Name = "txtLastName";
-            txtLastName.Size = new Size(200, 39);
-            txtLastName.TabIndex = 1;
+            dataGridViewPerson.CellContentClick += dataGridViewPerson_CellContentClick;
             // 
             // CheckBox
             // 
@@ -180,6 +148,38 @@
             personFullName.HeaderText = "Full Name";
             personFullName.MinimumWidth = 10;
             personFullName.Name = "personFullName";
+            // 
+            // lblFirstName
+            // 
+            lblFirstName.AutoSize = true;
+            lblFirstName.Location = new Point(25, 148);
+            lblFirstName.Name = "lblFirstName";
+            lblFirstName.Size = new Size(134, 32);
+            lblFirstName.TabIndex = 7;
+            lblFirstName.Text = "First Name:";
+            // 
+            // lblLastName
+            // 
+            lblLastName.AutoSize = true;
+            lblLastName.Location = new Point(695, 148);
+            lblLastName.Name = "lblLastName";
+            lblLastName.Size = new Size(131, 32);
+            lblLastName.TabIndex = 8;
+            lblLastName.Text = "Last Name:";
+            // 
+            // txtFirstName
+            // 
+            txtFirstName.Location = new Point(178, 141);
+            txtFirstName.Name = "txtFirstName";
+            txtFirstName.Size = new Size(200, 39);
+            txtFirstName.TabIndex = 0;
+            // 
+            // txtLastName
+            // 
+            txtLastName.Location = new Point(853, 141);
+            txtLastName.Name = "txtLastName";
+            txtLastName.Size = new Size(200, 39);
+            txtLastName.TabIndex = 1;
             // 
             // frmPerson
             // 

@@ -1,15 +1,15 @@
-﻿using Service;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Service; // For PersonService, ProductService (orchestrating services)
+using Microsoft.Extensions.DependencyInjection; // For Program.ServiceProvider
 
 namespace View
 {
     public partial class frmMain : Form
     {
-        private readonly IPersonService _personService;
-        private readonly IProductService _productService;
+        // These are the orchestrating services from the Service project
+        private readonly PersonService _personService;
+        private readonly ProductService _productService;
 
-        // Constructor now takes interfaces for both services
-        public frmMain(IPersonService personService, IProductService productService)
+        public frmMain(PersonService personService, ProductService productService)
         {
             InitializeComponent();
             _personService = personService ?? throw new ArgumentNullException(nameof(personService));
@@ -18,34 +18,52 @@ namespace View
 
         private void frmMain_Load(object sender, EventArgs e)
         {
-            this.Text = "Main Application Form";
+            this.Text = "My Application - Main Menu";
         }
 
-        private void btnPerson_Click_1(object sender, EventArgs e)
+        // Ensure your button in frmMain.Designer.cs is named btnOpenPersons
+        // or update the method name here and in the designer.
+        private void btnOpenPersons_Click(object sender, EventArgs e)
         {
-            using (var scope = Program.ServiceProvider.CreateScope())
+            if (_personService == null) // Should not happen with DI
             {
-                var personForm = scope.ServiceProvider.GetRequiredService<frmPerson>();
-                personForm.ShowDialog(this);
-            }
-        }
-
-        private void btnProduct_Click_1(object sender, EventArgs e)
-        {
-           
-            if (_productService == null) // This check is against the IProductService field now
-            {
-                MessageBox.Show("Internal error: Product service not available.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Person Service is not available.", "Service Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-
-            
-            using (var scope = Program.ServiceProvider.CreateScope())
+            try
             {
-                // This assumes frmProduct's constructor now takes IProductService
-                // and frmProduct is registered in Program.cs ConfigureServices
-                var productForm = scope.ServiceProvider.GetRequiredService<frmProduct>();
-                productForm.ShowDialog(this);
+                using (var scope = Program.ServiceProvider.CreateScope())
+                {
+                    var personForm = scope.ServiceProvider.GetRequiredService<frmPerson>();
+                    personForm.ShowDialog(this);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error opening Person form: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // Ensure your button in frmMain.Designer.cs is named btnOpenProducts
+        // or update the method name here and in the designer.
+        private void btnOpenProducts_Click(object sender, EventArgs e)
+        {
+            if (_productService == null) // Should not happen with DI
+            {
+                MessageBox.Show("Product Service is not available.", "Service Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            try
+            {
+                using (var scope = Program.ServiceProvider.CreateScope())
+                {
+                    var productForm = scope.ServiceProvider.GetRequiredService<frmProduct>();
+                    productForm.ShowDialog(this);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error opening Product form: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

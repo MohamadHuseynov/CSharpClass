@@ -1,177 +1,396 @@
-﻿using Service; 
-using Service.DTOs;
-
+﻿using Service;         // For ProductService
+using Service.DTOs;    // For Product DTOs and ServiceResult
+using System.Text;
 
 namespace View
 {
     public partial class frmProduct : Form
     {
-        private readonly IProductService _productService;
-        private int _selectedProductIdForEdit = 0;
+        private readonly ProductService _productService;
+        private int _selectedProductIdForEdit = 0; // Store ID of product selected for editing
 
-        // --- These names MUST match the (Name) property of your DataGridView columns in the Designer ---
+        // --- Column Name Constants from your frmProduct.Designer.cs ---
         private const string CheckBoxColumnName = "CheckBox";
+        // We'll add a hidden ID column programmatically if not in designer
         private const string IdColumnName = "colId";
         private const string TitleColumnName = "productTitle";
         private const string UnitPriceColumnName = "productUnitPrice";
         private const string QuantityColumnName = "productQuantity";
-        // --- End of column name definitions ---
 
-        public frmProduct(IProductService productService)
+        // Constructor if ProductService is to be injected (preferred for testing/flexibility)
+        // public frmProduct(ProductService productService)
+        // {
+        //     InitializeComponent();
+        //     _productService = productService ?? throw new ArgumentNullException(nameof(productService));
+        //     InitializeForm();
+        // }
+
+        // Parameterless constructor (assuming Program.cs might instantiate it this way for now)
+        public frmProduct()
         {
             InitializeComponent();
-            _productService = productService ?? throw new ArgumentNullException(nameof(productService));
-
-            this.Shown += frmProduct_Shown;
-            // We will use CellContentClick as the primary handler for checkbox interaction
-            // Remove CurrentCellDirtyStateChanged and CellValueChanged for this simplified approach
+            _productService = new ProductService(); // ProductService instantiates ProductServiceModel
+            InitializeForm();
         }
 
-        private void frmProduct_Shown(object sender, EventArgs e)
+        private void InitializeForm()
         {
-            ClearAllFieldsAndSelections();
-            UpdateButtonStatesAndTextBoxes();
-            ToggleGeneralControls(true);
-        }
+            SetupDataGridViewColumns();
 
-        private async Task LoadDataAsync()
-        {
-            this.Cursor = Cursors.WaitCursor;
-            ToggleGeneralControls(false);
-            try
+            this.Shown += (s, e) =>
             {
-                var result = await _productService.GetAllProductsAsync();
-                // Detach CellContentClick during programmatic changes if it causes issues
-                // this.dataGridViewProduct.CellContentClick -= dataGridViewProduct_CellContentClick;
-                dataGridViewProduct.Rows.Clear();
-
-                if (result.IsSuccess && result.Data != null && result.Data.Any())
-                {
-                    foreach (var productDto in result.Data)
-                    {
-                        dataGridViewProduct.Rows.Add(false, productDto.Id, productDto.Title, productDto.UnitPrice, productDto.Quantity);
-                    }
-                }
-                else if (!result.IsSuccess) { MessageBox.Show(result.Message, "Error Loading Product Data", MessageBoxButtons.OK, MessageBoxIcon.Error); }
-            }
-            catch (Exception ex) { MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
-            finally
-            {
-                // this.dataGridViewProduct.CellContentClick += dataGridViewProduct_CellContentClick; // Re-attach
                 ClearAllFieldsAndSelections();
+                ToggleControls(true);
+                dataGridViewProduct.DataSource = null;
+                txtTitle.Clear();
+                txtUnitPrice.Clear();
+                txtQuantity.Clear();
                 UpdateButtonStatesAndTextBoxes();
-                ToggleGeneralControls(true);
-                this.Cursor = Cursors.Default;
-            }
+            };
+
+            // Event handlers (some might already be wired in your Designer.cs)
+            // dataGridViewProduct.CellContentClick += dataGridViewProduct_CellContentClick; // Already in your Designer
+            dataGridViewProduct.SelectionChanged += dataGridViewProduct_SelectionChanged;
+            dataGridViewProduct.CurrentCellDirtyStateChanged += dataGridViewProduct_CurrentCellDirtyStateChanged;
+            dataGridViewProduct.CellValueChanged += dataGridViewProduct_CellValueChanged;
         }
 
-        private void ToggleGeneralControls(bool enabled)
+        private void SetupDataGridViewColumns()
         {
-            btnAdd.Enabled = enabled;
-            btnRefresh.Enabled = enabled;
-            txtTitle.Enabled = enabled;
-            txtUnitPrice.Enabled = enabled;
-            txtQuantity.Enabled = enabled;
-            dataGridViewProduct.Enabled = enabled;
-            btnBack.Enabled = enabled;
-            if (enabled) UpdateButtonStatesAndTextBoxes(); else { btnEdit.Enabled = false; btnDelete.Enabled = false; }
+            dataGridViewProduct.AutoGenerateColumns = false;
+
+            // Ensure columns from Designer.cs have correct DataPropertyName and ReadOnly settings
+            // Or, if you prefer full programmatic setup after Columns.Clear():
+            // dataGridViewProduct.Columns.Clear();
+            // Then add all columns programmatically like in frmPerson's example.
+
+            // For now, let's assume columns exist from Designer and we adjust them:
+
+            // CheckBox Column (Name: "CheckBox" in your designer)
+            if (dataGridViewProduct.Columns.Contains(CheckBoxColumnName))
+            {
+                dataGridViewProduct.Columns[CheckBoxColumnName].ReadOnly = false;
+                dataGridViewProduct.Columns[CheckBoxColumnName].Width = 50;
+                dataGridViewProduct.Columns[CheckBoxColumnName].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            }
+            else
+            { // Add if missing
+                var checkBoxCol = new DataGridViewCheckBoxColumn { Name = CheckBoxColumnName, HeaderText = "", Width = 50, AutoSizeMode = DataGridViewAutoSizeColumnMode.None, ReadOnly = false };
+                dataGridViewProduct.Columns.Insert(0, checkBoxCol);
+            }
+
+            // ID Column (Hidden) - Add if not present
+            if (!dataGridViewProduct.Columns.Contains(IdColumnName))
+            {
+                var idCol = new DataGridViewTextBoxColumn { Name = IdColumnName, DataPropertyName = "Id", Visible = false, ReadOnly = true };
+                dataGridViewProduct.Columns.Insert(1, idCol); // Insert after checkbox
+            }
+            else
+            {
+                dataGridViewProduct.Columns[IdColumnName].DataPropertyName = "Id";
+                dataGridViewProduct.Columns[IdColumnName].Visible = false;
+                dataGridViewProduct.Columns[IdColumnName].ReadOnly = true;
+            }
+
+            // Title Column (Name: "productTitle" in your designer)
+            if (dataGridViewProduct.Columns.Contains(TitleColumnName))
+            {
+                dataGridViewProduct.Columns[TitleColumnName].DataPropertyName = "Title";
+                dataGridViewProduct.Columns[TitleColumnName].ReadOnly = true;
+            }
+
+            // UnitPrice Column (Name: "productUnitPrice" in your designer)
+            if (dataGridViewProduct.Columns.Contains(UnitPriceColumnName))
+            {
+                dataGridViewProduct.Columns[UnitPriceColumnName].DataPropertyName = "UnitPrice";
+                dataGridViewProduct.Columns[UnitPriceColumnName].ReadOnly = true;
+            }
+
+            // Quantity Column (Name: "productQuantity" in your designer)
+            if (dataGridViewProduct.Columns.Contains(QuantityColumnName))
+            {
+                dataGridViewProduct.Columns[QuantityColumnName].DataPropertyName = "Quantity";
+                dataGridViewProduct.Columns[QuantityColumnName].ReadOnly = true;
+            }
+
+            dataGridViewProduct.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            // AllowUserToAddRows is false and RowHeadersVisible is false in your Designer.cs, which is good.
         }
 
-     
-        private void dataGridViewProduct_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        private void ToggleControls(bool enable)
         {
-            if (e.RowIndex < 0) return; // Click on header, ignore
+            txtTitle.Enabled = enable;
+            txtUnitPrice.Enabled = enable;
+            txtQuantity.Enabled = enable;
+            btnAdd.Enabled = enable;
+            btnRefresh.Enabled = enable;
+            btnBack.Enabled = enable;
+            dataGridViewProduct.Enabled = enable;
 
-            // Check if the click is on the checkbox column
-            if (e.ColumnIndex == dataGridViewProduct.Columns[CheckBoxColumnName].Index)
-            {
-                // Commit any pending edit for the current cell to ensure its value is up-to-date
-                // before we try to read or change it. This is often needed for checkboxes.
-                dataGridViewProduct.CommitEdit(DataGridViewDataErrorContexts.Commit);
-
-                // Now, manually toggle the value of the checkbox cell that was clicked
-                DataGridViewCheckBoxCell checkBoxCell = dataGridViewProduct.Rows[e.RowIndex].Cells[CheckBoxColumnName] as DataGridViewCheckBoxCell;
-                if (checkBoxCell != null)
-                {
-                    bool currentValue = checkBoxCell.Value != null && Convert.ToBoolean(checkBoxCell.Value);
-                    checkBoxCell.Value = !currentValue; // Toggle it
-                }
-
-                // After manually toggling and committing, immediately update the UI state
-                UpdateButtonStatesAndTextBoxes();
-            }
-            // Optional: Handle clicks on other (non-checkbox) cells if needed
-            // else
-            // {
-            //    // Logic for clicking data cells, e.g., populating textboxes without affecting checkboxes
-            //    // For now, we focus on checkbox-driven interaction for edit/delete
-            // }
-        }
-
-
-        private void UpdateButtonStatesAndTextBoxes()
-        {
-            var checkedIds = GetSelectedProductIdsFromGridCheckboxes();
-            int checkedCount = checkedIds.Count;
-            DataGridViewRow firstSelectedRowForEditVisuals = null;
-            _selectedProductIdForEdit = 0;
-
-            if (checkedCount == 1)
-            {
-                btnEdit.Enabled = true;
-                btnDelete.Enabled = true;
-                int singleId = checkedIds.First();
-                _selectedProductIdForEdit = singleId;
-                foreach (DataGridViewRow row in dataGridViewProduct.Rows)
-                {
-                    if (!row.IsNewRow && row.Cells[IdColumnName].Value != null && Convert.ToInt32(row.Cells[IdColumnName].Value) == singleId)
-                    {
-                        firstSelectedRowForEditVisuals = row;
-                        break;
-                    }
-                }
-            }
-            else if (checkedCount > 1)
-            {
-                btnEdit.Enabled = false;
-                btnDelete.Enabled = true;
-            }
+            if (enable) UpdateButtonStatesAndTextBoxes();
             else
             {
                 btnEdit.Enabled = false;
                 btnDelete.Enabled = false;
             }
+        }
 
-            if (firstSelectedRowForEditVisuals != null)
+        private void LoadData()
+        {
+            ToggleControls(false);
+            var result = _productService.GetAllProducts();
+            if (result.IsSuccess && result.Data != null)
             {
-                txtTitle.Text = firstSelectedRowForEditVisuals.Cells[TitleColumnName].Value?.ToString() ?? "";
-                txtUnitPrice.Text = firstSelectedRowForEditVisuals.Cells[UnitPriceColumnName].Value?.ToString() ?? "";
-                txtQuantity.Text = firstSelectedRowForEditVisuals.Cells[QuantityColumnName].Value?.ToString() ?? "";
+                dataGridViewProduct.DataSource = null;
+                dataGridViewProduct.DataSource = result.Data;
             }
             else
             {
-                txtTitle.Clear();
-                txtUnitPrice.Clear();
-                txtQuantity.Clear();
+                MessageBox.Show(result.Message ?? "An unknown error occurred while loading data.", "Error Loading Products", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                dataGridViewProduct.DataSource = null;
+            }
+            // ClearAllFieldsAndSelections(); // To be called by refresh button or after operations
+            ToggleControls(true);
+        }
+
+        private void btnAdd_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtTitle.Text))
+            {
+                MessageBox.Show("Please enter a Title.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtTitle.Focus();
+                return;
+            }
+            if (!int.TryParse(txtUnitPrice.Text, out int unitPrice) || unitPrice < 0)
+            {
+                MessageBox.Show("Please enter a valid positive Unit Price.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtUnitPrice.Focus();
+                return;
+            }
+            if (!int.TryParse(txtQuantity.Text, out int quantity) || quantity < 0)
+            {
+                MessageBox.Show("Please enter a valid positive Quantity.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtQuantity.Focus();
+                return;
+            }
+
+            var postDto = new PostProductDto()
+            {
+                Title = txtTitle.Text.Trim(),
+                UnitPrice = unitPrice,
+                Quantity = quantity
+            };
+
+            ToggleControls(false);
+            var result = _productService.AddProduct(postDto);
+            ToggleControls(true);
+
+            if (result.IsSuccess)
+            {
+                MessageBox.Show(result.Message, "Operation Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                LoadData();
+                ClearAllFieldsAndSelections(); // Clear after successful add and load
+            }
+            else
+            {
+                MessageBox.Show(result.Message, "Operation Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private List<int> GetSelectedProductIdsFromGridCheckboxes()
+        private void btnRefresh_Click(object sender, EventArgs e)
+        {
+            LoadData();
+            ClearAllFieldsAndSelections(); // Ensure clean state after refresh
+            MessageBox.Show("Data has been refreshed.", "Refresh", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void btnEdit_Click(object sender, EventArgs e)
+        {
+            if (_selectedProductIdForEdit <= 0)
+            {
+                MessageBox.Show("Please check the box next to the product you want to edit.", "No Product Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(txtTitle.Text))
+            {
+                MessageBox.Show("Title cannot be empty for editing.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtTitle.Focus();
+                return;
+            }
+            if (!int.TryParse(txtUnitPrice.Text, out int unitPrice) || unitPrice < 0)
+            {
+                MessageBox.Show("Please enter a valid positive Unit Price for editing.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtUnitPrice.Focus();
+                return;
+            }
+            if (!int.TryParse(txtQuantity.Text, out int quantity) || quantity < 0)
+            {
+                MessageBox.Show("Please enter a valid positive Quantity for editing.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtQuantity.Focus();
+                return;
+            }
+
+            var updateDto = new UpdateProductDto
+            {
+                Title = txtTitle.Text.Trim(),
+                UnitPrice = unitPrice,
+                Quantity = quantity
+            };
+
+            ToggleControls(false);
+            var result = _productService.UpdateProduct(_selectedProductIdForEdit, updateDto);
+            ToggleControls(true);
+
+            if (result.IsSuccess)
+            {
+                MessageBox.Show(result.Message, "Update Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                LoadData();
+            }
+            else
+            {
+                MessageBox.Show(result.Message, "Update Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+            var selectedIds = GetSelectedIdsFromCheckboxes();
+            if (!selectedIds.Any())
+            {
+                MessageBox.Show("Please check the box(es) for the product(s) you want to delete.", "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var confirmResult = MessageBox.Show($"Are you sure you want to delete {selectedIds.Count} selected product(s)?",
+                                     "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+            if (confirmResult == DialogResult.Yes)
+            {
+                ToggleControls(false);
+                int successCount = 0;
+                int failCount = 0;
+                StringBuilder errors = new StringBuilder();
+
+                foreach (var id in selectedIds)
+                {
+                    var result = _productService.DeleteProduct(id);
+                    if (result.IsSuccess)
+                    {
+                        successCount++;
+                    }
+                    else
+                    {
+                        failCount++;
+                        errors.AppendLine($"- ID {id}: {result.Message}");
+                    }
+                }
+                ToggleControls(true);
+
+                string summaryMessage = $"{successCount} product(s) deleted successfully.";
+                if (failCount > 0)
+                {
+                    summaryMessage += $"\n{failCount} product(s) could not be deleted:\n{errors.ToString()}";
+                }
+                MessageBox.Show(summaryMessage, "Delete Operation Complete", MessageBoxButtons.OK,
+                                failCount > 0 ? MessageBoxIcon.Error : MessageBoxIcon.Information);
+                LoadData();
+            }
+        }
+
+        private List<int> GetSelectedIdsFromCheckboxes()
         {
             var ids = new List<int>();
-            foreach (DataGridViewRow row in dataGridViewProduct.Rows)
+            if (dataGridViewProduct.Columns.Contains(CheckBoxColumnName) && dataGridViewProduct.Columns.Contains(IdColumnName))
             {
-                if (row.IsNewRow) continue;
-                DataGridViewCheckBoxCell checkBoxCell = row.Cells[CheckBoxColumnName] as DataGridViewCheckBoxCell;
-                if (checkBoxCell != null && checkBoxCell.Value != null && Convert.ToBoolean(checkBoxCell.Value))
+                foreach (DataGridViewRow row in dataGridViewProduct.Rows)
                 {
-                    if (row.Cells[IdColumnName].Value != null && int.TryParse(row.Cells[IdColumnName].Value.ToString(), out int id))
+                    if (row.IsNewRow) continue;
+                    DataGridViewCheckBoxCell checkBoxCell = row.Cells[CheckBoxColumnName] as DataGridViewCheckBoxCell;
+                    if (checkBoxCell?.Value != null && Convert.ToBoolean(checkBoxCell.Value))
                     {
-                        ids.Add(id);
+                        if (row.Cells[IdColumnName].Value != null && int.TryParse(row.Cells[IdColumnName].Value.ToString(), out int id))
+                        {
+                            ids.Add(id);
+                        }
                     }
                 }
             }
             return ids;
+        }
+
+        private void dataGridViewProduct_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+
+            if (dataGridViewProduct.Columns.Contains(CheckBoxColumnName) && e.ColumnIndex == dataGridViewProduct.Columns[CheckBoxColumnName].Index)
+            {
+                dataGridViewProduct.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }
+            // No direct textbox population from non-checkbox cell clicks
+            // UpdateButtonStatesAndTextBoxes will be called by CellValueChanged or SelectionChanged
+        }
+
+        private void dataGridViewProduct_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+        {
+            if (dataGridViewProduct.IsCurrentCellDirty &&
+                dataGridViewProduct.Columns.Contains(CheckBoxColumnName) &&
+                dataGridViewProduct.CurrentCell.OwningColumn.Name == CheckBoxColumnName)
+            {
+                dataGridViewProduct.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }
+        }
+
+        private void dataGridViewProduct_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0 && dataGridViewProduct.Columns.Contains(CheckBoxColumnName) && e.ColumnIndex == dataGridViewProduct.Columns[CheckBoxColumnName].Index)
+            {
+                UpdateButtonStatesAndTextBoxes();
+            }
+        }
+
+        private void dataGridViewProduct_SelectionChanged(object sender, EventArgs e)
+        {
+            // This event should not populate textboxes by itself if we want checkbox-driven population.
+            // It will simply ensure button states are updated.
+            UpdateButtonStatesAndTextBoxes();
+        }
+
+        private void PopulateFieldsFromRow(DataGridViewRow row)
+        {
+            if (row == null || row.IsNewRow ||
+                !dataGridViewProduct.Columns.Contains(IdColumnName) || row.Cells[IdColumnName].Value == null ||
+                !dataGridViewProduct.Columns.Contains(TitleColumnName) ||
+                !dataGridViewProduct.Columns.Contains(UnitPriceColumnName) ||
+                !dataGridViewProduct.Columns.Contains(QuantityColumnName))
+            {
+                _selectedProductIdForEdit = 0;
+                return;
+            }
+
+            if (int.TryParse(row.Cells[IdColumnName].Value.ToString(), out int id))
+            {
+                _selectedProductIdForEdit = id;
+                txtTitle.Text = row.Cells[TitleColumnName].Value?.ToString() ?? "";
+                txtUnitPrice.Text = row.Cells[UnitPriceColumnName].Value?.ToString() ?? "";
+                txtQuantity.Text = row.Cells[QuantityColumnName].Value?.ToString() ?? "";
+            }
+            else
+            {
+                _selectedProductIdForEdit = 0;
+            }
+        }
+
+        private void ClearCheckboxes()
+        {
+            if (dataGridViewProduct.Columns.Contains(CheckBoxColumnName))
+            {
+                foreach (DataGridViewRow row in dataGridViewProduct.Rows)
+                {
+                    if (row.IsNewRow) continue;
+                    DataGridViewCheckBoxCell checkBoxCell = row.Cells[CheckBoxColumnName] as DataGridViewCheckBoxCell;
+                    if (checkBoxCell != null) checkBoxCell.Value = false;
+                }
+            }
         }
 
         private void ClearAllFieldsAndSelections()
@@ -180,119 +399,57 @@ namespace View
             txtUnitPrice.Clear();
             txtQuantity.Clear();
             _selectedProductIdForEdit = 0;
+            ClearCheckboxes();
             if (dataGridViewProduct.Rows.Count > 0)
             {
-                // No need to detach/re-attach CellContentClick if its logic is robust
+                dataGridViewProduct.ClearSelection();
+                if (dataGridViewProduct.CurrentCell != null)
+                    dataGridViewProduct.CurrentCell = null;
+            }
+            UpdateButtonStatesAndTextBoxes();
+        }
+
+        private void UpdateButtonStatesAndTextBoxes()
+        {
+            var selectedIdsFromCheckboxes = GetSelectedIdsFromCheckboxes();
+            int checkedCount = selectedIdsFromCheckboxes.Count;
+
+            btnDelete.Enabled = checkedCount > 0;
+
+            if (checkedCount == 1)
+            {
+                btnEdit.Enabled = true;
                 foreach (DataGridViewRow row in dataGridViewProduct.Rows)
                 {
                     if (row.IsNewRow) continue;
                     DataGridViewCheckBoxCell checkBoxCell = row.Cells[CheckBoxColumnName] as DataGridViewCheckBoxCell;
-                    if (checkBoxCell != null) { checkBoxCell.Value = false; }
+                    if (checkBoxCell?.Value != null && Convert.ToBoolean(checkBoxCell.Value))
+                    {
+                        PopulateFieldsFromRow(row);
+                        break;
+                    }
                 }
             }
+            else
+            {
+                btnEdit.Enabled = false;
+                txtTitle.Clear();
+                txtUnitPrice.Clear();
+                txtQuantity.Clear();
+                _selectedProductIdForEdit = 0;
+            }
         }
 
-        private async void btnAdd_Click(object sender, EventArgs e)
+        private void btnBack_Click(object sender, EventArgs e)
         {
-            if (!ValidateInputFields(out CreateProductDto createDto)) return;
-            this.Cursor = Cursors.WaitCursor;
-            ToggleGeneralControls(false);
-            var result = await _productService.AddProductAsync(createDto);
-            this.Cursor = Cursors.Default;
-            if (result.IsSuccess) { await LoadDataAsync(); }
-            else { ToggleGeneralControls(true); MessageBox.Show(result.Message, "Error Adding Product", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            this.Close();
         }
 
-        private async void btnEdit_Click(object sender, EventArgs e)
+        private void frmProduct_Load(object sender, EventArgs e)
         {
-            if (_selectedProductIdForEdit == 0)
-            {
-                MessageBox.Show("Please select exactly one product using the checkbox to edit.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-            if (!ValidateInputFields(out UpdateProductDto updateDto)) return;
-            this.Cursor = Cursors.WaitCursor;
-            ToggleGeneralControls(false);
-            var result = await _productService.UpdateProductAsync(_selectedProductIdForEdit, updateDto);
-            this.Cursor = Cursors.Default;
-            if (result.IsSuccess) { await LoadDataAsync(); }
-            else { ToggleGeneralControls(true); MessageBox.Show(result.Message, "Error Editing Product", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+
         }
 
-        private async void btnDelete_Click(object sender, EventArgs e)
-        {
-            var idsToDelete = GetSelectedProductIdsFromGridCheckboxes();
-            if (!idsToDelete.Any())
-            {
-                MessageBox.Show("Please select at least one product using the checkboxes to delete.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-            if (MessageBox.Show($"Are you sure you want to delete {idsToDelete.Count} selected product(s)?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-            {
-                this.Cursor = Cursors.WaitCursor;
-                ToggleGeneralControls(false);
-                int successCount = 0; int failCount = 0; string errorDetails = "";
-                foreach (var idInList in idsToDelete)
-                {
-                    var result = await _productService.DeleteProductAsync(idInList);
-                    if (result.IsSuccess) successCount++;
-                    else { failCount++; errorDetails += $"ID {idInList}: {result.Message}\n"; }
-                }
-                this.Cursor = Cursors.Default;
-                string finalMessage = "";
-                if (successCount > 0) finalMessage += $"{successCount} product(s) deleted successfully.\n";
-                if (failCount > 0) finalMessage += $"{failCount} product(s) failed to delete.\nDetails:\n{errorDetails}";
-                MessageBox.Show(finalMessage.Trim(), "Delete Result", MessageBoxButtons.OK, (failCount > 0) ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
-                await LoadDataAsync();
-            }
-        }
-
-        private bool ValidateInputFields(out CreateProductDto dto)
-        {
-            dto = null;
-            if (string.IsNullOrWhiteSpace(txtTitle.Text))
-            {
-                MessageBox.Show("Product title is required.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtTitle.Focus(); return false;
-            }
-            if (!int.TryParse(txtUnitPrice.Text, out int unitPrice) || unitPrice < 0)
-            {
-                MessageBox.Show("Unit Price must be a valid non-negative number.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtUnitPrice.Focus(); return false;
-            }
-            if (!int.TryParse(txtQuantity.Text, out int quantity) || quantity < 0)
-            {
-                MessageBox.Show("Quantity must be a valid non-negative number.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtQuantity.Focus(); return false;
-            }
-            dto = new CreateProductDto { Title = txtTitle.Text.Trim(), UnitPrice = unitPrice, Quantity = quantity };
-            return true;
-        }
-
-        private bool ValidateInputFields(out UpdateProductDto dto)
-        {
-            dto = null;
-            if (string.IsNullOrWhiteSpace(txtTitle.Text))
-            {
-                MessageBox.Show("Product title is required.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtTitle.Focus(); return false;
-            }
-            if (!int.TryParse(txtUnitPrice.Text, out int unitPrice) || unitPrice < 0)
-            {
-                MessageBox.Show("Unit Price must be a valid non-negative number.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtUnitPrice.Focus(); return false;
-            }
-            if (!int.TryParse(txtQuantity.Text, out int quantity) || quantity < 0)
-            {
-                MessageBox.Show("Quantity must be a valid non-negative number.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtQuantity.Focus(); return false;
-            }
-            dto = new UpdateProductDto { Title = txtTitle.Text.Trim(), UnitPrice = unitPrice, Quantity = quantity };
-            return true;
-        }
-
-        private async void btnRefresh_Click(object sender, EventArgs e) { await LoadDataAsync(); }
-        private void btnBack_Click(object sender, EventArgs e) { this.Close(); }
-        private void frmProduct_Load(object sender, EventArgs e) { /* Initial one-time setup */ }
+       
     }
 }

@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Model; 
-using Service; 
-
+using Model; // For FinalProjectDbContext
+using Model.ServiceModels; // For PersonServiceModel, ProductServiceModel
+using Service; // For PersonService, ProductService (orchestrating services)
+using System;
+using System.Windows.Forms;
 
 namespace View
 {
@@ -27,15 +29,21 @@ namespace View
 
         private static void ConfigureServices(IServiceCollection services)
         {
-            
-            services.AddScoped<FinalProjectDbContext>(); // This will use the parameterless constructor, then OnConfiguring.
+            // Database Context (used by ServiceModels in the Model project)
+            services.AddScoped<FinalProjectDbContext>();
 
+            // Data Access "ServiceModels" (from Model.ServiceModels namespace)
+            // These classes directly interact with FinalProjectDbContext.
+            services.AddTransient<PersonServiceModel>();
+            services.AddTransient<ProductServiceModel>();
 
-            // Register your services and their interfaces
-            services.AddTransient<IPersonService, PersonService>();
-            services.AddTransient<ProductService>(); // Assuming ProductService takes FinalProjectDbContext
+            // Orchestration/Business Logic Services (from Service namespace)
+            // These classes use the "ServiceModels" (data access classes) above.
+            services.AddTransient<PersonService>();
+            services.AddTransient<ProductService>();
 
-            // Registering forms
+            // Forms (from View namespace)
+            // These classes use the Orchestration/Business Logic Services.
             services.AddTransient<frmMain>();
             services.AddTransient<frmPerson>();
             services.AddTransient<frmProduct>();

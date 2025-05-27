@@ -1,167 +1,163 @@
-﻿using Model;
-using Model.DomainModels;
+﻿using Model.DomainModels;
+using Model.ServiceModels;
 using Service.DTOs;
-using Microsoft.EntityFrameworkCore;
 
 
 namespace Service
 {
-    public class PersonService : IPersonService
+    public class PersonService
     {
-        private readonly FinalProjectDbContext _context;
+        private readonly PersonServiceModel _personServiceModel;
 
-        public PersonService(FinalProjectDbContext context)
+        public PersonService()
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _personServiceModel = new PersonServiceModel();
         }
 
-        public async Task<ServiceResult> AddPersonAsync(CreatePersonDto personDto)
+        // --- Helper Mapping Methods ---
+        private GetPersonDto MapEntityToGetPersonDto(Person person) 
         {
-            if (personDto == null)
-                return ServiceResult.Fail("اطلاعات شخص برای افزودن ارسال نشده است.");
-            if (string.IsNullOrWhiteSpace(personDto.FirstName))
-                return ServiceResult.Fail("نام شخص الزامی است.");
-            if (string.IsNullOrWhiteSpace(personDto.LastName))
-                return ServiceResult.Fail("نام خانوادگی شخص الزامی است.");
+            if (person == null) return null;
+            return new GetPersonDto
+            {
+                Id = person.Id,
+                FirstName = person.FirstName,
+                LastName = person.LastName
+                // FullName is a get-only property in GetPersonDto and will be calculated by it
+            };
+        }
+
+        private Person MapPostDtoToEntity(PostPersonDto postDto)
+        {
+            if (postDto == null) return null;
+            return new Person
+            {
+                FirstName = postDto.FirstName.Trim(),
+                LastName = postDto.LastName.Trim()
+            };
+        }
+
+        private Person MapUpdateDtoToEntity(int id, UpdatePersonDto updateDto)
+        {
+            if (updateDto == null) return null;
+            return new Person
+            {
+                Id = id,
+                FirstName = updateDto.FirstName.Trim(),
+                LastName = updateDto.LastName.Trim()
+            };
+        }
+
+        // --- Service Methods ---
+
+        public ServiceResult<GetPersonDto> AddPerson(PostPersonDto postPersonDto)
+        {
+            if (postPersonDto == null)
+                return ServiceResult<GetPersonDto>.Fail("Input data cannot be null.");
+            if (string.IsNullOrWhiteSpace(postPersonDto.FirstName))
+                return ServiceResult<GetPersonDto>.Fail("First name is required.");
+            if (string.IsNullOrWhiteSpace(postPersonDto.LastName))
+                return ServiceResult<GetPersonDto>.Fail("Last name is required.");
 
             try
             {
-                var personEntity = new Person
-                {
-                    FirstName = personDto.FirstName.Trim(),
-                    LastName = personDto.LastName.Trim()
-                };
-                _context.Person.Add(personEntity);
-                await _context.SaveChangesAsync();
-                return ServiceResult.Success("شخص با موفقیت اضافه شد.");
-            }
-            catch (DbUpdateException ex)
-            {
-                Console.WriteLine($"DbUpdateException in AddPersonAsync (Service): {ex.InnerException?.Message ?? ex.Message}");
-                return ServiceResult.Fail($"خطا در ذخیره سازی اطلاعات شخص در دیتابیس: {ex.InnerException?.Message ?? ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in AddPersonAsync (Service): {ex.Message}");
-                return ServiceResult.Fail($"خطای پیش بینی نشده در هنگام افزودن شخص: {ex.Message}");
-            }
-        }
-
-        public async Task<ServiceResult<List<PersonDto>>> GetAllPersonsAsync()
-        {
-            try
-            {
-                var personEntities = await _context.Person
-                                                   .AsNoTracking()
-                                                   .ToListAsync();
-                var personDtos = personEntities.Select(p => new PersonDto
-                {
-                    Id = p.Id,
-                    FirstName = p.FirstName,
-                    LastName = p.LastName,
-                    FullName = p.FullName
-                }).ToList();
-                return ServiceResult<List<PersonDto>>.Success(personDtos);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in GetAllPersonsAsync (Service): {ex.Message}");
-                return ServiceResult<List<PersonDto>>.Fail($"خطا در بازیابی لیست اشخاص: {ex.Message}");
-            }
-        }
-
-        public async Task<ServiceResult<PersonDto>> GetPersonByIdAsync(int id)
-        {
-            if (id <= 0)
-                return ServiceResult<PersonDto>.Fail("شناسه شخص نامعتبر است.");
-
-            try
-            {
-                var personEntity = await _context.Person.FindAsync(id);
-
+                var personEntity = MapPostDtoToEntity(postPersonDto);
                 if (personEntity == null)
-                    return ServiceResult<PersonDto>.Fail("شخص با شناسه مورد نظر یافت نشد.");
+                    return ServiceResult<GetPersonDto>.Fail("Failed to map DTO to entity.");
 
-                var personDto = new PersonDto
-                {
-                    Id = personEntity.Id,
-                    FirstName = personEntity.FirstName,
-                    LastName = personEntity.LastName,
-                    FullName = personEntity.FullName
-                };
-                return ServiceResult<PersonDto>.Success(personDto);
+                _personServiceModel.Post(personEntity);
+
+                var createdDto = MapEntityToGetPersonDto(personEntity); // <<< METHOD CALL
+                return ServiceResult<GetPersonDto>.Success(createdDto, "Person added successfully.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in GetPersonByIdAsync (Service): {ex.Message}");
-                return ServiceResult<PersonDto>.Fail($"خطا در بازیابی اطلاعات شخص: {ex.Message}");
+                Console.WriteLine($"Error in PersonService.AddPerson: {ex.Message}");
+                return ServiceResult<GetPersonDto>.Fail($"An error occurred while adding the person: {ex.GetBaseException().Message}");
             }
         }
 
-        public async Task<ServiceResult> UpdatePersonAsync(int id, UpdatePersonDto personDto)
+        public ServiceResult<List<GetPersonDto>> GetAllPersons()
         {
-            if (id <= 0)
-                return ServiceResult.Fail("شناسه شخص برای ویرایش نامعتبر است.");
-            if (personDto == null)
-                return ServiceResult.Fail("اطلاعات شخص برای ویرایش ارسال نشده است.");
-            if (string.IsNullOrWhiteSpace(personDto.FirstName))
-                return ServiceResult.Fail("نام شخص الزامی است.");
-            if (string.IsNullOrWhiteSpace(personDto.LastName))
-                return ServiceResult.Fail("نام خانوادگی شخص الزامی است.");
-
             try
             {
-                var existingPerson = await _context.Person.FindAsync(id);
-                if (existingPerson == null)
-                    return ServiceResult.Fail("شخص با شناسه مورد نظر برای ویرایش یافت نشد.");
-
-                existingPerson.FirstName = personDto.FirstName.Trim();
-                existingPerson.LastName = personDto.LastName.Trim();
-
-                await _context.SaveChangesAsync();
-                return ServiceResult.Success("اطلاعات شخص با موفقیت ویرایش شد.");
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                Console.WriteLine($"Concurrency Error in UpdatePersonAsync (Service): {ex.Message}");
-                return ServiceResult.Fail("اطلاعات شخص توسط کاربر دیگری تغییر کرده است. لطفا صفحه را رفرش کنید و دوباره تلاش کنید.");
-            }
-            catch (DbUpdateException ex)
-            {
-                Console.WriteLine($"DbUpdateException in UpdatePersonAsync (Service): {ex.InnerException?.Message ?? ex.Message}");
-                return ServiceResult.Fail($"خطا در ذخیره سازی ویرایش شخص: {ex.InnerException?.Message ?? ex.Message}");
+                var personEntities = _personServiceModel.SelectAll();
+                var personDtos = personEntities.Select(MapEntityToGetPersonDto).ToList(); // <<< METHOD CALL (as a delegate)
+                return ServiceResult<List<GetPersonDto>>.Success(personDtos);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in UpdatePersonAsync (Service): {ex.Message}");
-                return ServiceResult.Fail($"خطای پیش بینی نشده در هنگام ویرایش شخص: {ex.Message}");
+                Console.WriteLine($"Error in PersonService.GetAllPersons: {ex.Message}");
+                return ServiceResult<List<GetPersonDto>>.Fail($"An error occurred while retrieving persons: {ex.GetBaseException().Message}");
             }
         }
 
-        public async Task<ServiceResult> DeletePersonAsync(int id)
+        public ServiceResult<GetPersonDto> GetPersonById(int id)
         {
             if (id <= 0)
-                return ServiceResult.Fail("شناسه شخص برای حذف نامعتبر است.");
-
+                return ServiceResult<GetPersonDto>.Fail("Invalid Person ID.");
             try
             {
-                var person = await _context.Person.FindAsync(id);
-                if (person == null)
-                    return ServiceResult.Fail("شخص با شناسه مورد نظر برای حذف یافت نشد.");
+                var personEntity = _personServiceModel.SelectById(id);
+                if (personEntity == null)
+                    return ServiceResult<GetPersonDto>.Fail("Person not found.");
 
-                _context.Person.Remove(person);
-                await _context.SaveChangesAsync();
-                return ServiceResult.Success("شخص با موفقیت حذف شد.");
-            }
-            catch (DbUpdateException ex)
-            {
-                Console.WriteLine($"Database Error in DeletePersonAsync (Service): {ex.InnerException?.Message ?? ex.Message}");
-                return ServiceResult.Fail("خطا در حذف شخص. ممکن است این شخص به سایر اطلاعات سیستم وابسته باشد.");
+                return ServiceResult<GetPersonDto>.Success(MapEntityToGetPersonDto(personEntity)); // <<< METHOD CALL
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in DeletePersonAsync (Service): {ex.Message}");
-                return ServiceResult.Fail($"خطای پیش بینی نشده در هنگام حذف شخص: {ex.Message}");
+                Console.WriteLine($"Error in PersonService.GetPersonById: {ex.Message}");
+                return ServiceResult<GetPersonDto>.Fail($"An error occurred while retrieving person details: {ex.GetBaseException().Message}");
+            }
+        }
+
+        public ServiceResult UpdatePerson(int id, UpdatePersonDto updatePersonDto)
+        {
+            if (id <= 0)
+                return ServiceResult.Fail("Invalid Person ID for update.");
+            if (updatePersonDto == null)
+                return ServiceResult.Fail("Update data cannot be null.");
+            if (string.IsNullOrWhiteSpace(updatePersonDto.FirstName))
+                return ServiceResult.Fail("First name is required for update.");
+            if (string.IsNullOrWhiteSpace(updatePersonDto.LastName))
+                return ServiceResult.Fail("Last name is required for update.");
+
+            try
+            {
+                var personToUpdate = MapUpdateDtoToEntity(id, updatePersonDto);
+                if (personToUpdate == null)
+                    return ServiceResult.Fail("Failed to map DTO to entity for update.");
+
+                bool success = _personServiceModel.Update(personToUpdate);
+
+                if (success)
+                    return ServiceResult.Success("Person updated successfully.");
+                else
+                    return ServiceResult.Fail("Person not found or update failed at data access level.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in PersonService.UpdatePerson: {ex.Message}");
+                return ServiceResult.Fail($"An error occurred while updating the person: {ex.GetBaseException().Message}");
+            }
+        }
+
+        public ServiceResult DeletePerson(int id)
+        {
+            if (id <= 0)
+                return ServiceResult.Fail("Invalid Person ID for deletion.");
+            try
+            {
+                bool success = _personServiceModel.Delete(id);
+                if (success)
+                    return ServiceResult.Success("Person deleted successfully.");
+                else
+                    return ServiceResult.Fail("Person not found or delete failed at data access level.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in PersonService.DeletePerson: {ex.Message}");
+                return ServiceResult.Fail($"An error occurred while deleting the person: {ex.GetBaseException().Message}");
             }
         }
     }
