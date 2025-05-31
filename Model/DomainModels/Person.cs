@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿
 
 namespace Model.DomainModels
 {
@@ -10,8 +10,6 @@ namespace Model.DomainModels
 
         public string LastName { get; set; }
 
-        [NotMapped]
-        public string FullName { get {return $"{FirstName} {LastName}"; } }
 
     }
 
